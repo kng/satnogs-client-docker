@@ -18,7 +18,7 @@ RUN pip3 install satnogs-client
 RUN mkdir -p /var/lib/satnogs/.gnuradio/prefs/ && echo -n "gr::vmcircbuf_mmap_shm_open_factory" > /var/lib/satnogs/.gnuradio/prefs/vmcircbuf_default_factory
 #RUN volk_profile
 
-# choose to simply fork the rigctld in background and satnogs-client in foreground, or use supervisord for the two
+# choose to simply fork the rigctld in background and satnogs-client in foreground, or use supervisord for the two processes
 CMD ["/usr/bin/supervisord","-c/etc/supervisor/supervisord.conf"]
 #CMD ["/usr/local/bin/satnogs-run.sh"]
 
