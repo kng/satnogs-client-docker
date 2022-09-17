@@ -1,0 +1,3 @@
+FROM knegge/satnogs-client:addons
+COPY gr-satellites/python/satyaml/* /usr/lib/python3/dist-packages/satellites/satyaml/
+
