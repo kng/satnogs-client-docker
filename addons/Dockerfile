@@ -56,6 +56,10 @@ RUN cd libpredict &&\
 #    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
 #    cmake --build build --target install
 
+# test run flowgraph with current settings
+COPY test-flowgraph.sh /target/usr/bin
+COPY wf2png.py /target/usr/bin
+
 ENTRYPOINT []
 CMD ["bash"]
 
