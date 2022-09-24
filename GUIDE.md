@@ -14,6 +14,12 @@ They are always start fresh from the image and can be modified, but it's non-per
 ***Volumes*** is either a persistent storage for containers or bind-mounted to your host for configuration or storage.
 
 # Getting satnogs-client up and running
+## Host system
+You will need to install the libraries and supporting sw/fw for your sdr device, including udev rules and blacklists.<br>
+Additional software such as soapysdr is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
+`sudo apt install rtl-sdr`
+
+See the [docker installation](#install-docker-engine) at the bottom of this page.
 
 ## Scripts
 I recommend creating a few scripts that can be run to make the management easier.
