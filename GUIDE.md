@@ -19,7 +19,7 @@ You will need to install the libraries and supporting sw/fw for your sdr device,
 Additional software such as soapysdr is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
 `sudo apt install rtl-sdr`
 
-See the [docker installation](#install-docker-engine) at the bottom of this page.
+See the [docker installation](#install-dockerio) at the bottom of this page.
 
 ## Scripts
 I recommend creating a few scripts that can be run to make the management easier.
@@ -108,7 +108,26 @@ Today there's at least one additional image developed, it contains a set of popu
 If you want to use this, replace the `:latest` with `:addons` in the scripts. It will pull this image automatically, and you can swap between them at any time.<br>
 Stopping a container does not change the tag, you need to remove and recreate it as is done with the -up and -down scripts.<br>
 
-# Install Docker Engine
+# Install Docker.io
+
+In Debian bullseye there's already a docker package, so installation is easy:
+```
+sudo apt install docker.io
+sudo adduser pi docker
+```
+
+Re-login for the group premission to take effect.
+
+## Recommended install: [Portainer](https://docs.portainer.io/start/install/server/docker/linux)
+
+```
+docker volume create portainer_data
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+Then browse to https://yourDocker:9443 and follow the instruction, use local socket in the "Get started" section.
+
+
+# For reference: Install Docker Engine (docker.com)
 
 Refer to [docker installation](https://docs.docker.com/engine/install/debian/) on how to get the latest installed on your system.<br>
 Short version, ymmv: Base image: Rasperry Pi OS 64bit or 32bit Lite (bullseye):
@@ -128,11 +147,3 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 # add user to docker group, avoid needing sudo, re-login to apply
 sudo adduser pi docker
 ```
-
-## Recommended install: [Portainer](https://docs.portainer.io/start/install/server/docker/linux)
-
-```
-docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
-```
-Then browse to https://yourDocker:9443 and follow the instruction, use local socket in the "Get started" section.
