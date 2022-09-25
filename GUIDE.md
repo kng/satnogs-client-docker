@@ -141,6 +141,55 @@ docker run \
 Let it run for ~30s and then exit with Ctrl-C.
 
 
+## Auto scheduler
+A nice way to increase the utilization of your station is to run the [satnogs-auto-scheduler](https://gitlab.com/librespacefoundation/satnogs/satnogs-auto-scheduler).<br>
+For this I use pretty much the same scripts as mentioned above.<br>
+
+scheduler-up.sh
+```
+#!/bin/bash
+# remember to create cache volume
+if ! docker volume inspect satnogs-auto-scheduler-cache > /dev/null 2>&1 ; then
+        echo "creating cache volume"
+        docker volume create satnogs-auto-scheduler-cache
+        docker run --rm -u 0:0 -v satnogs-auto-scheduler-cache:/tmp/cache/ -it knegge/satnogs-auto-scheduler:latest chown -R satnogs:satnogs /tmp/cache/
+fi
+
+docker run \
+    --name satnogs-auto-scheduler \
+    -v satnogs-auto-scheduler-cache:/tmp/cache/ \
+    -v ~/satnogs-config:/.env \
+    -d knegge/satnogs-auto-scheduler:latest
+```
+
+scheduler-down.sh
+```
+#!/bin/bash
+docker stop satnogs-auto-scheduler
+docker container rm satnogs-auto-scheduler
+#docker volume rm satnogs-auto-scheduler-cache
+```
+
+scheduler-update.sh
+```
+#!/bin/bash
+docker pull knegge/satnogs-auto-scheduler:latest
+./scheduler-down.sh
+./scheduler-up.sh
+```
+
+Additionally you will need to add this to the `~/satnogs-config`:
+```
+SATNOGS_SCHEDULE_EXTRA="-d 1.2"
+SATNOGS_DB_API_TOKEN=""
+```
+
+The EXTRA parameter is the command line that is [passed](https://github.com/kng/satnogs-auto-scheduler-docker/blob/master/entrypoint.sh#L21) to [schedule_single_station.py](https://gitlab.com/librespacefoundation/satnogs/satnogs-auto-scheduler/-/blob/master/schedule_single_station.py), except the station ID.<br>
+DB key is recommended as it speeds up the TLE pull. It can be obtained from [DB](https://db.satnogs.org/) and select settings/api token in the upper right.<br>
+Start it up with `./scheduler-up.sh` and watch the log with `docker logs satnogs-auto-scheduler -n 50 -f -t`.
+
+
+
 # Install Docker.io
 
 In Debian bullseye there's already a docker package, so installation is easy:
