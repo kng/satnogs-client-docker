@@ -54,7 +54,11 @@ Make the script executable: `chmod 0755 client-up.sh client-down.sh client-updat
 
 ## Client config
 If you already have a working config for the station, I recommend copying it. You can also change the scripts to use the system location of the config.<br>
-`cp /etc/default/satnogs-client ~/satnogs-config`
+Choose one of the following:
+Copy the config to the home directory `cp /etc/default/satnogs-client ~/satnogs-config`<br>
+OR<br>
+Change the config line in client-up.sh to `-v /etc/default/satnogs-client:/.env \`<br>
+Docker will try to create a directory named after the bind-mount if the file doesn't exist, in this case you need to remove the directory.
 
 Template for ~/satnogs-config , edit for your id/token etc.
 ```
@@ -84,7 +88,7 @@ The client-up.sh script details:<br>
 `--name satnogs-client` giving it a name.<br>
 `--device=/dev/bus/usb/` mapping usb devices into the container, required for rtl-sdr but not plutosdr.<br>
 `--tmpfs /tmp` creating a tmpfs of /tmp as satnogs-client stores it's running data here.<br>
-`-v ~/satnogs-config:/.env` bind-mounting the configuration file to .env inside the container, this is read by the client.<br>
+`-v ~/satnogs-config:/.env` bind-mounting the configuration file to .env inside the container, which is read by the client.<br>
 `-d knegge/satnogs-client:latest` this specifies the image to use, and detach mode. You can replace `-d` with `-it` to run it in foreground.<br>
 
 ## Inside the container
@@ -100,6 +104,8 @@ exec "$@"
 This starts `rigctld` which is used for the doppler coreection.<br>
 Then activates the `virtualenv` located in the satnogs user homedir. It contains all the python requirements.<br>
 Last it executes the argument given, in this case `satnogs-client`.<br>
+If you're using portainer you can look in the container list if it is running, or use `docker ps -a`.
+
 
 ## [Tags](https://hub.docker.com/r/knegge/satnogs-client/tags)
 You may have noticed the `:latest` when referring to the image, this is a tag that points to the latest image.<br>
@@ -107,6 +113,33 @@ There can be several images with tags differentiating them, as well as imgages h
 Today there's at least one additional image developed, it contains a set of popular addons and uses the `:latest` image plus a bunch of compiled software.<br>
 If you want to use this, replace the `:latest` with `:addons` in the scripts. It will pull this image automatically, and you can swap between them at any time.<br>
 Stopping a container does not change the tag, you need to remove and recreate it as is done with the -up and -down scripts.<br>
+
+
+## Addons
+[gr-satellites](https://github.com/daniestevez/gr-satellites) is a popular demod and decoder and there's a integration into satnogs-client, this has been added to the :addons image and to activate it you will need to add a few rows to the config:
+```
+SATNOGS_PRE_OBSERVATION_SCRIPT="satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
+SATNOGS_POST_OBSERVATION_SCRIPT="satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
+UDP_DUMP_HOST="0.0.0.0"
+```
+And change the tag in the client-up.sh to: `-d knegge/satnogs-client:addons`.<br>
+Then run `./client-down.sh && ./client-up.sh` 
+
+The pre-/post observation script launches [grsat-wrapper.sh](https://github.com/kng/satnogs_gr-satellites/blob/main/grsat-wrapper.sh) and this is the glue between gr-satellites and satnogs-client.<br>
+Make sure to remove or comment out these 3 lines if you're running the :latest tag instead of :addons.<br>
+
+## Test SDR
+The :addons also has a useful script to test your sdr and config, to launch it you can use this script (remember to set the config path):
+```
+#!/bin/bash
+docker run \
+    --device=/dev/bus/usb/ \
+    --tmpfs /tmp \
+    -v ~/satnogs-config:/.env \
+    --rm -it knegge/satnogs-client:addons test-flowgraph.sh
+```
+Let it run for ~30s and then exit with Ctrl-C.
+
 
 # Install Docker.io
 
