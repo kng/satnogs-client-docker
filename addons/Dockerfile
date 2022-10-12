@@ -59,6 +59,7 @@ RUN cd libpredict &&\
 # test run flowgraph with current settings
 COPY test-flowgraph.sh /target/usr/bin
 COPY wf2png.py /target/usr/bin
+COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
 
 ENTRYPOINT []
 CMD ["bash"]
