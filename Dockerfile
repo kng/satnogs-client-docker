@@ -5,7 +5,8 @@ ARG GRSATNOGS_URL=https://gitlab.com/knegge/gr-satnogs.git
 ARG GRSATNOGS_BRANCH=master
 ARG FLOWGRAPHS_URL=https://gitlab.com/knegge/satnogs-flowgraphs.git
 ARG FLOWGRAPHS_BRANCH=ssb
-ARG CLIENT_GIT=git+https://gitlab.com/knegge/satnogs-client.git@ssb
+ARG CLIENT_URL=https://gitlab.com/knegge/satnogs-client.git
+ARG CLIENT_BRANCH=ssb
 
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends unzip git python3-pip libhdf5-103 python3-virtualenv virtualenv build-essential gfortran pkg-config libhdf5-dev python3-dev python3-libhamlib2 python3-gps
 
@@ -15,7 +16,6 @@ libboost-system-dev libboost-test-dev libboost-thread-dev nlohmann-json3-dev lib
 libvorbis-dev libitpp-dev pkg-config python3-dev python3-six swig python3-all gr-soapy python3-soapysdr
 
 RUN git clone --depth 1 --branch $GRSATNOGS_BRANCH $GRSATNOGS_URL
-RUN sed -i 's/0.0-1/2.3-1/g' gr-satnogs/debian/changelog
 RUN cd gr-satnogs && sed -i 's/0.0-1/2.3-1/g' debian/changelog && ./debian/rules binary
 RUN dpkg -i gr-satnogs_*.deb libgnuradio-satnogs_*.deb
 
@@ -26,7 +26,7 @@ RUN dpkg -i satnogs-flowgraphs_*.deb
 WORKDIR /env
 RUN virtualenv -p python3 --no-seed .
 RUN . bin/activate && pip3 install --upgrade pip setuptools wheel ujson --prefer-binary --extra-index-url https://www.piwheels.org/simple
-RUN --mount=type=cache,id=wheels,target=/wheels . bin/activate && pip3 wheel $CLIENT_GIT -w /wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple
+RUN --mount=type=cache,id=wheels,target=/wheels rm /wheels/satnogs* && . bin/activate && pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && ls -l /wheels > /wheels.list
 
 FROM debian:bullseye as runner
 MAINTAINER sa2kng <knegge@gmail.com>
@@ -46,7 +46,7 @@ RUN groupadd -g 995 satnogs && useradd -g satnogs -G dialout,plugdev -m -d /var/
 
 WORKDIR /var/lib/satnogs
 USER satnogs
-RUN --mount=type=cache,id=wheels,target=/wheels virtualenv -p python3 --system-site-packages . && . bin/activate && pip3 install satnogs-client~=1.8 --find-links=/wheels --prefix=/var/lib/satnogs --no-index && rm -rf .cache/pip/
+RUN --mount=type=cache,id=wheels,target=/wheels virtualenv -p python3 --system-site-packages . && . bin/activate && pip3 install satnogs-client --find-links=/wheels --prefix=/var/lib/satnogs --no-index && rm -rf .cache/pip/
 RUN mkdir -p .gnuradio/prefs/ && echo -n "gr::vmcircbuf_sysv_shm_factory" > .gnuradio/prefs/vmcircbuf_default_factory
 
 COPY entrypoint.sh /
