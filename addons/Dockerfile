@@ -3,7 +3,7 @@ WORKDIR /
 USER root
 
 # install build env and required libs etc
-RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev libusb-1.0-0-dev libsoapysdr-dev libpng-dev libsndfile-dev fakeroot psmisc ninja-build autoconf automake libtool patch
+RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev libusb-1.0-0-dev libsoapysdr-dev libpng-dev libsndfile-dev fakeroot psmisc ninja-build autoconf automake libtool patch librtlsdr-dev
 
 # install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
@@ -56,9 +56,17 @@ RUN cd libpredict &&\
 #    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
 #    cmake --build build --target install
 
+RUN git clone https://github.com/steve-m/kalibrate-rtl.git
+RUN cd kalibrate-rtl &&\
+    ./bootstrap &&\
+    CXXFLAGS='-W -Wall -O3' ./configure &&\
+    make &&\
+    cp src/kal /target/usr/bin
+
 # test run flowgraph with current settings
 COPY test-flowgraph.sh /target/usr/bin
 COPY wf2png.py /target/usr/bin
+COPY liveupdate-satyaml.sh /target/usr/bin
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
 
 ENTRYPOINT []
