@@ -9,10 +9,10 @@ RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev lib
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
 
 # install gr-satellites
-RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/gr-satellites.git
-RUN cd gr-satellites &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
-    cmake --build build --target install
+#RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/gr-satellites.git
+#RUN cd gr-satellites &&\
+#    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
+#    cmake --build build --target install
 
 # install satnogs_gr-satellites
 RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
