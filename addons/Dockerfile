@@ -14,6 +14,12 @@ RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
 #    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
 #    cmake --build build --target install
 
+# install beesat-sdr for mobitex support
+RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/beesat-sdr.git
+RUN cd beesat-sdr/gr-tnc_nx &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
+    cmake --build build --target install
+
 # install satnogs_gr-satellites
 RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
 RUN cd satnogs_gr-satellites &&\
