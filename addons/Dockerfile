@@ -74,6 +74,7 @@ COPY test-flowgraph.sh /target/usr/bin
 COPY wf2png.py /target/usr/bin
 COPY liveupdate-satyaml.sh /target/usr/bin
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
+COPY uhd_images_downloader.py /target/usr/bin
 
 ENTRYPOINT []
 CMD ["bash"]
