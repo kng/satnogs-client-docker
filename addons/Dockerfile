@@ -69,7 +69,7 @@ RUN cd kalibrate-rtl &&\
     make &&\
     cp src/kal /target/usr/bin
 
-RUN git clone --depth=1 https://github.com/cbassa/strf.git
+RUN git clone --branch starting_index  --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
 # test run flowgraph with current settings
@@ -84,4 +84,14 @@ CMD ["bash"]
 
 FROM knegge/satnogs-client:latest
 COPY --from=builder /target /
+USER root
+ENV BANDSCAN_FREQ 401000000
+ENV BANDSCAN_SAMPLERATE 2048000
+ENV BANDSCAN_DIR /var/lib/satnogs/bandscan
+RUN echo 'DAY=$(date -Idate)' >> /usr/bin/satnogs-post
+RUN echo 'SAVEDIR="$BANDSCAN_DIR/$BANDSCAN_FREQ/$DAY"' >> /usr/bin/satnogs-post
+RUN echo 'mkdir -p $SAVEDIR' >> /usr/bin/satnogs-post
+RUN echo 'INDEX=$(ls $SAVEDIR | wc -l)' >> /usr/bin/satnogs-post
+RUN echo 'rtl_sdr -p -5 -g 10 -d 0 -s $BANDSCAN_SAMPLERATE -f $BANDSCAN_FREQ - | rffft -q -f $BANDSCAN_FREQ -s $BANDSCAN_SAMPLERATE -F char -c 50 -t 1 -p $SAVEDIR -o $DAY -S $INDEX &' >> /usr/bin/satnogs-post
 
+RUN echo 'kill $(pidof rtl_sdr)' >> /usr/bin/satnogs-pre
