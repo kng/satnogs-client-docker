@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -e -o allexport
 if [ -f "/.env" ]; then
     source /.env
 fi

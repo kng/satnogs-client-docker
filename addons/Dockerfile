@@ -17,7 +17,7 @@ RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
 # install beesat-sdr for mobitex support
 RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/beesat-sdr.git
 RUN cd beesat-sdr/gr-tnc_nx &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
 # install satnogs_gr-satellites
@@ -28,7 +28,7 @@ RUN cd satnogs_gr-satellites &&\
 # install mirisdr
 RUN git clone -b v2.0.0 https://github.com/f4exb/libmirisdr-4.git
 RUN cd libmirisdr-4 &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
 # install soapymiri
