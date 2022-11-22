@@ -50,6 +50,7 @@ RUN cd aptdec &&\
 #    fpc -CX -XX -O3 -Mdelphi -FUunits -Fualib medet.dpr &&\
 #    cp medet /target/usr/bin
 
+# satellite orbit prediction for tle
 RUN git clone -b v2.0.0 https://github.com/la1k/libpredict.git
 RUN cd libpredict &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
@@ -62,6 +63,7 @@ RUN cd libpredict &&\
 #    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
 #    cmake --build build --target install
 
+# kalibrate for rtl_sdr
 RUN git clone https://github.com/steve-m/kalibrate-rtl.git
 RUN cd kalibrate-rtl &&\
     ./bootstrap &&\
@@ -87,7 +89,7 @@ COPY test-flowgraph.sh \
      satnogs-post \
      satnogs-pre \
      iq_dump_rename.sh \
-     bandscan.sh
+     bandscan.sh \
      /target/usr/bin/
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
 

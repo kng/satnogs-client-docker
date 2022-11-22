@@ -23,3 +23,12 @@ if [ "${1^^}" == "START" ] && [ "${BANDSCAN_ENABLE^^}" == "YES" ]; then
     $BANDSCAN_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -s "$BANDSCAN_SAMPLERATE" -f "$BANDSCAN_FREQ" -F CF32 - | rffft -q -f "$BANDSCAN_FREQ" -s "$BANDSCAN_SAMPLERATE" -F float -c 50 -t 1 -p "$SAVEDIR" -o "$DAY" -S "$INDEX" &
     echo $! > "$BANDSCAN_PID"
 fi
+
+if [ "${1^^}" == "STOP" ]; then
+   if [ -f "$BANDSCAN_PID" ]; then
+       echo "Stopping bandscan"
+       kill "$(cat "$BANDSCAN_PID")"
+       rm -f "$BANDSCAN_PID"
+   fi
+fi
+
