@@ -69,6 +69,16 @@ RUN cd kalibrate-rtl &&\
     make &&\
     cp src/kal /target/usr/bin
 
+# rx_fm rx_power rx_sdr
+RUN git clone --depth=1 https://github.com/rxseger/rx_tools.git
+RUN cd rx_tools &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# rffft from strf
+RUN git clone --depth=1 https://github.com/cbassa/strf.git
+RUN cd strf && make rffft && cp rffft /target/usr/bin
+
 # test run flowgraph with current settings
 COPY test-flowgraph.sh \
      wf2png.py \
@@ -77,6 +87,7 @@ COPY test-flowgraph.sh \
      satnogs-post \
      satnogs-pre \
      iq_dump_rename.sh \
+     bandscan.sh
      /target/usr/bin/
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
 

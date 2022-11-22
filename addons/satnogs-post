@@ -3,3 +3,4 @@
 
 grsat-wrapper.sh stop "$@"
 iq_dump_rename.sh "$@"
+bandscan.sh start &
