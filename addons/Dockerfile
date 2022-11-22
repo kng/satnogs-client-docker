@@ -70,11 +70,15 @@ RUN cd kalibrate-rtl &&\
     cp src/kal /target/usr/bin
 
 # test run flowgraph with current settings
-COPY test-flowgraph.sh /target/usr/bin
-COPY wf2png.py /target/usr/bin
-COPY liveupdate-satyaml.sh /target/usr/bin
+COPY test-flowgraph.sh \
+     wf2png.py \
+     liveupdate-satyaml.sh \
+     uhd_images_downloader.py \
+     satnogs-post \
+     satnogs-pre \
+     iq_dump_rename.sh \
+     /target/usr/bin/
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
-COPY uhd_images_downloader.py /target/usr/bin
 
 ENTRYPOINT []
 CMD ["bash"]

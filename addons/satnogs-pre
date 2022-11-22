@@ -1,0 +1,4 @@
+#!/bin/bash
+# SATNOGS_PRE_OBSERVATION_SCRIPT="satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
+
+grsat-wrapper.sh start "$@"
