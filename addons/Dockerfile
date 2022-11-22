@@ -69,7 +69,7 @@ RUN cd kalibrate-rtl &&\
     make &&\
     cp src/kal /target/usr/bin
 
-RUN git clone --branch starting_index  --depth=1 https://github.com/cbassa/strf.git
+RUN git clone --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
 # test run flowgraph with current settings
