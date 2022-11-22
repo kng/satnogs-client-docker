@@ -78,10 +78,13 @@ COPY wf2png.py /target/usr/bin
 COPY liveupdate-satyaml.sh /target/usr/bin
 COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
 COPY uhd_images_downloader.py /target/usr/bin
+COPY bandscan.sh /usr/bin
 
 ENTRYPOINT []
 CMD ["bash"]
 
 FROM knegge/satnogs-client:latest
 COPY --from=builder /target /
-
+USER root
+RUN echo 'bandscan.sh start &' >> /usr/bin/satnogs-post
+RUN echo 'bandscan.sh stop' >> /usr/bin/satnogs-pre
