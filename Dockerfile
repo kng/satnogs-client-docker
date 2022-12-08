@@ -28,13 +28,13 @@ RUN cd satnogs-flowgraphs && \
     sed -i 's/0.0-1/1.4-1/g' debian/changelog && \
     ./debian/rules binary
 RUN dpkg -i satnogs-flowgraphs_*.deb
-RUN --mount=type=cache,id=debs,target=/debs cp gr-satnogs_*.deb libgnuradio-satnogs_*.deb satnogs-flowgraphs_*.deb /debs
+RUN --mount=type=cache,id=debs,target=/debs mkdir -p /debs/$(dpkg --print-architecture)/ && cp gr-satnogs_*.deb libgnuradio-satnogs_*.deb satnogs-flowgraphs_*.deb /debs/$(dpkg --print-architecture)/
 
 WORKDIR /env
 RUN virtualenv -p python3 --no-seed .
 RUN . bin/activate && \
     pip3 install --upgrade pip setuptools wheel ujson --prefer-binary --extra-index-url https://www.piwheels.org/simple
-RUN --mount=type=cache,id=wheels,target=/wheels rm /wheels/satnogs* && \
+RUN --mount=type=cache,id=wheels,target=/wheels rm -f /wheels/satnogs* && \
     . bin/activate && \
     pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
     ls -l /wheels > /wheels.list
@@ -51,10 +51,10 @@ RUN wget -qO - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key | gpg -
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends libhamlib-utils vorbis-tools \
     unzip git python3-pip rtl-sdr satnogs-flowgraphs gr-soapy gr-satnogs libhdf5-103 python3-virtualenv virtualenv \
     python3-libhamlib2 python3-six python3-requests soapysdr-module-all soapysdr-tools python3-construct jq \
-    soapysdr-module-plutosdr soapysdr-module-airspyhf python3-gps && \
+    soapysdr-module-plutosdr soapysdr-module-airspyhf python3-gps gr-satellites && \
     rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,id=debs,target=/debs dpkg -i /debs/*.deb
+RUN --mount=type=cache,id=debs,target=/debs dpkg -R -i /debs/$(dpkg --print-architecture)/
 
 RUN groupadd -g 995 satnogs && useradd -g satnogs -G dialout,plugdev -m -d /var/lib/satnogs -s /bin/bash -u 999 satnogs
 
