@@ -26,15 +26,15 @@ RUN cd satnogs_gr-satellites &&\
     make DESTDIR=/target PREFIX=/usr install
 
 # install mirisdr
-RUN git clone -b v2.0.0 https://github.com/f4exb/libmirisdr-4.git
-RUN cd libmirisdr-4 &&\
+RUN git clone https://github.com/ericek111/libmirisdr-5.git
+RUN cd libmirisdr-5 &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
 # install soapymiri
 RUN git clone https://github.com/ericek111/SoapyMiri.git
 RUN cd SoapyMiri &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
 # install aptdec
