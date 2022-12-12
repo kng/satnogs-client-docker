@@ -20,6 +20,11 @@ RUN cd beesat-sdr/gr-tnc_nx &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+# SSDV with support for DSLWP and JY1SAT modes
+RUN git clone --depth=1 https://github.com/daniestevez/ssdv.git
+RUN cd ssdv &&\
+    make DESTDIR=/target install
+
 # install satnogs_gr-satellites
 RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
 RUN cd satnogs_gr-satellites &&\
