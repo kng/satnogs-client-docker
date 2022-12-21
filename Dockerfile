@@ -15,7 +15,7 @@ RUN chown satnogs:satnogs -R /usr/lib/python3/dist-packages/satellites/satyaml
 
 WORKDIR /var/lib/satnogs
 USER satnogs
-RUN virtualenv -p python3 --system-site-packages . && . bin/activate && pip3 install satnogs-client~=1.8 --prefix=/var/lib/satnogs --prefer-binary --extra-index-url https://www.piwheels.org/simple && rm -rf .cache/pip/
+RUN virtualenv -p python3 --system-site-packages . && . bin/activate && pip3 install git+https://gitlab.com/librespacefoundation/satnogs/satnogs-client.git --prefix=/var/lib/satnogs --prefer-binary --extra-index-url https://www.piwheels.org/simple && rm -rf .cache/pip/
 RUN mkdir -p .gnuradio/prefs/ && echo -n "gr::vmcircbuf_sysv_shm_factory" > .gnuradio/prefs/vmcircbuf_default_factory
 # Alternatively: gr::vmcircbuf_mmap_shm_open_factory
 
