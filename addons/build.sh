@@ -9,6 +9,6 @@ if [ ! -z ${DEV} ]; then
     docker run --rm -it knegge/satnogs-client:builder
 else
     # build and append result to base image
-    docker build -t knegge/satnogs-client:addons .
+    docker build -t knegge/satnogs-client:dev-addons .
 fi
 
