@@ -87,12 +87,7 @@ RUN git clone --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
 # install jq (not found in source image)
-RUN git clone --depth=1 -b jq-1.6 https://github.com/stedolan/jq.git
-RUN cd jq &&\
-    git submodule update --init &&\
-    autoreconf -fi &&\
-    ./configure --with-oniguruma=builtin --disable-maintainer-mode --prefix=/target &&\
-    make all install
+RUN cp /usr/bin/jq /target/usr/bin/
 
 # test run flowgraph with current settings
 COPY test-flowgraph.sh \
