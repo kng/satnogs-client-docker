@@ -86,9 +86,6 @@ RUN cd rx_tools &&\
 RUN git clone --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
-# install jq (not found in source image)
-RUN cp /usr/bin/jq /target/usr/bin/
-
 # test run flowgraph with current settings
 COPY test-flowgraph.sh \
      wf2png.py \
@@ -107,6 +104,6 @@ CMD ["bash"]
 FROM librespace/satnogs-client:master
 COPY --from=builder /target /
 
-# super ugly workaround on the hard coded rigctld host
-RUN sed -i 's/tcp_rigctl_msg_source("127.0.0.1"/tcp_rigctl_msg_source("172.30.0.2"/' /usr/bin/satnogs_*.py
+RUN apt update && apt install -y git jq && rm -rf /var/lib/apt/lists/*
+RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 
