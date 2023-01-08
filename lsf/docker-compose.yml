@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+
+  rigctld:
+    image: 'librespace/hamlib:4.0'
+    user: '999'
+    read_only: true
+    environment:
+      MODEL: '1'
+    restart: 'unless-stopped'
+    command: 'rigctld'
+
+  rotctld:
+    image: 'librespace/hamlib:4.0'
+    user: '999'
+    read_only: true
+    environment:
+      MODEL: '1'
+    # devices:
+    #   - '/dev/ttyUSB1:/dev/ttyUSB1'
+    restart: 'unless-stopped'
+    command: 'rotctld'
+    profiles:  # disable if not used
+      - donotstart
+
+  satnogs_client:
+    image: 'librespace/satnogs-client:master'  # LSF docker image
+    #image: 'knegge/satnogs-client:lsf-addons'  # as above + gr-satellites and addons
+    user: '999'
+    read_only: true
+    device_cgroup_rules:
+      - 'c 189:* rwm'
+    init: true
+    env_file:
+      - ./station.env
+    environment:
+      SATNOGS_RIG_IP: 'rigctld'
+      SATNOGS_RIG_PORT: '4532'
+      #SATNOGS_ROT_MODEL: 'ROT_MODEL_NETROTCTL'
+      #SATNOGS_ROT_PORT: 'rotctld:4533'
+    #command: 'satnogs-client'  # default
+    command: 'update-flowgraphs.sh'  # workaround for satnogs-flowgraphs without rig ip support
+    volumes:
+      - type: 'tmpfs'
+        target: '/tmp'
+      - type: 'volume'
+        source: 'satnogs-client'
+        target: '/var/lib/satnogs-client'
+      - '/dev/bus/usb:/dev/bus/usb'
+      - './update-flowgraphs.sh:/usr/bin/update-flowgraphs.sh'  # flowgraphs workaround script
+    restart: 'unless-stopped'
+
+  auto-scheduler:
+    image: 'librespace/satnogs-auto-scheduler:latest'
+    build:
+      context: https://gitlab.com/knegge/satnogs-auto-scheduler.git#docker  # LSF image not yet built
+    user: '999'
+    #command: 'schedule_single_station.py -s 351'  # this command will run once and exit
+    command: 'bash -c "while true; do schedule_single_station.py -s $$SATNOGS_STATION_ID; sleep 3600; done"'
+    read_only: true
+    env_file:
+      - ./station.env
+    depends_on:
+      - satnogs_client
+    volumes:
+      - type: 'tmpfs'
+        target: '/tmp'
+    restart: unless-stopped  # du not use with exiting client as this will just loop
+
+volumes:
+  satnogs-client:  # persitant named volume for the station
+
