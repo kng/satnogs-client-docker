@@ -1,0 +1,9 @@
+The docker-compose available in debian bullseye is currently version 1.25, which is too low for the cgroup rules.
+install 1.27 via: sudo apt install docker-compose/bullseye-backports
+
+init is required when using gr_satellites etc, otherwise ends up with defunct processes.
+
+named volume for persitant varstate data between compose down/up instead of creating new ones every time.
+
+was network static ip for workaround on flowgraphs rig ip setting. this has a workaround with the script update-flowgraphs.sh until they're updated upstream
+

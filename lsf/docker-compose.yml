@@ -20,8 +20,17 @@ services:
     #   - '/dev/ttyUSB1:/dev/ttyUSB1'
     restart: 'unless-stopped'
     command: 'rotctld'
-    profiles:  # disable if not used
-      - donotstart
+
+  gpsd:
+    image: 'librespace/satnogs-client:master'
+    user: '999'
+    read_only: true
+    command: 'gpsd -b -N -G /dev/ttyUSB0'
+    device_cgroup_rules:
+      - 'c 188:* rwm'
+    devices:
+       - '/dev/ttyUSB0:/dev/ttyUSB0'
+    #restart: 'unless-stopped' # allow to fail, uncomment when verified that it's working
 
   satnogs_client:
     image: 'librespace/satnogs-client:master'  # LSF docker image
@@ -38,6 +47,8 @@ services:
       SATNOGS_RIG_PORT: '4532'
       #SATNOGS_ROT_MODEL: 'ROT_MODEL_NETROTCTL'
       #SATNOGS_ROT_PORT: 'rotctld:4533'
+      SATNOGS_GPSD_HOST: 'gpsd'  # enable GPS in station.env
+      SATNOGS_GPSD_PORT: '2947'
     #command: 'satnogs-client'  # default
     command: 'update-flowgraphs.sh'  # workaround for satnogs-flowgraphs without rig ip support
     volumes:
