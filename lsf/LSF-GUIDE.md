@@ -36,6 +36,7 @@ cp station.env-dist station.env
 nano station.env
 ```
 Make sure to populate all the lines that are not commented out as these are the important ones.
+Also note that the values should not be escaped with quotes or ticks.
 
 ## Bringing the stack up
 
@@ -71,7 +72,7 @@ docker-compose logs -f
 In the file [docker-compose.maxed](docker-compose.maxed) there's some additional services that can be run, for example rotator and auto-scheduler.
 These can be copied in to the [docker-compose.yml](docker-compose.yml) to be activated, do note additions in the section `environment:` in the service satnogs_client needs to be added as well.
 
-# Addons
+## Addons
 The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented line below the default image.
 Some additional settings is needed to activate it's functionality, simply remove the comment (#) in front of the following lines in `station.env`:
 ```commandline
@@ -80,13 +81,19 @@ SATNOGS_POST_OBSERVATION_SCRIPT=satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP
 UDP_DUMP_HOST=0.0.0.0
 ```
 
+## Development and building
+TODO, building images, choosing own repos etc.
+
 # Install Docker.io
 
 In Debian bullseye there's already a docker package, so installation is easy:
 ```
-sudo apt install docker.io
+sudo apt install docker.io apparmor
+sudo apt -t bullseye-backports install docker-compose
 sudo adduser pi docker
 ```
+Make sure to match the username, where pi is used here above.
+The reason for using backports is the version of compose in bullseye is 1.25 and lacks cgroup support, the backport is version 1.27
 
 Re-login for the group premission to take effect.
 

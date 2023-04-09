@@ -53,8 +53,7 @@ services:
       SATNOGS_ROT_PORT: 'rotctld:4533'
       SATNOGS_GPSD_HOST: 'gpsd'  # enable GPS in station.env
       SATNOGS_GPSD_PORT: '2947'
-    #command: 'satnogs-client'  # default
-    command: 'update-flowgraphs.sh'  # workaround for satnogs-flowgraphs without rig ip support
+    command: 'satnogs-client'  # default
     device_cgroup_rules:
       - 'c 189:* rwm'
     devices:
@@ -65,7 +64,6 @@ services:
       - type: 'volume'
         source: 'satnogs-client'
         target: '/var/lib/satnogs-client'
-      - './update-flowgraphs.sh:/usr/bin/update-flowgraphs.sh'  # flowgraphs workaround script
     restart: 'unless-stopped'
     stop_grace_period: 1s
 
@@ -88,5 +86,5 @@ services:
     stop_grace_period: 1s
 
 volumes:
-  satnogs-client:  # persitant named volume for the station
+  satnogs-client:  # persistent named volume for the station
 
