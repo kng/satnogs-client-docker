@@ -8,16 +8,16 @@ My preferred distro is Debian 11 (bullseye) and this guide will be tailored for 
 ## Basic parts of docker, [Official overview](https://docs.docker.com/get-started/overview/)
 ***Images*** are usually hosted on a registry, for example hub.docker.com, from where you can pull them to your system.
 They are the complete software bundled to run an application, in this case a debian image and a lot of packages installed that is required for satnogs-client.<br>
-***Container*** is the running instance of an image and is basically a isolated environment where you run the app.
+***Container*** is the running instance of an image and is basically an isolated environment where you run the app.
 They are always start fresh from the image and can be modified, but it's non-persistent so after a stop any changes are lost.<br>
 ***Volumes*** is either a persistent storage for containers or bind-mounted to your host for configuration or storage.
 
 ***Compose*** This is the main difference from the [old guide](../GUIDE.md), where everything is controlled with the [docker-compose](docker-compose.yml).
 In this file all the different services (essentially containers) are specified and all it's settings and relationships between them.
-The containers exist on a separate network in this configuration, so rigctld runs in it's own container and the satnogs-client talks to this over this network.
+The containers exist on a separate network in this configuration, so rigctld runs in its own container and the satnogs-client talks to this over this network.
 What this means is that you don't need a bunch of scripts to start/stop/update everything.
 It also means that you don't run several services in the same container.
-By default it creates a stack that is named after the directory the compose file is located in.
+By default, it creates a stack that is named after the directory the compose file is located in.
 
 # Getting satnogs-client up and running
 ## Host system
@@ -29,7 +29,13 @@ See the [docker installation](#install-dockerio) at the bottom of this page.
 
 ## Configuration
 
-The file `station.env` all of the station variables (earlier in /etc/default/satnogs-client), some of the variables that is important to the function of the stack is in the compose file.
+Start with cloning this repo, or downloading the files in [lsf/](/lsf) to a local directory.
+````commandline
+git clone https://github.com/kng/satnogs-client-docker.git
+cd satnogs-client-docker/lsf
+````
+
+The file `station.env` contains all the station variables (earlier in /etc/default/satnogs-client), some of the variables that is important to the function of the stack is located in the compose file.
 On a fresh install, copy the `station.env-dist` to `station.env` and edit it.
 ```commandline
 cp station.env-dist station.env
@@ -69,13 +75,13 @@ docker-compose logs -f
 ```
 
 # Additional services and addons
-In the file [docker-compose.maxed](docker-compose.maxed) there's some additional services that can be run, for example rotator and auto-scheduler.
+In the [maxed](docker-compose.maxed) yml there's some additional services that can be run, for example rotator and auto-scheduler.
 These can be copied in to the [docker-compose.yml](docker-compose.yml) to be activated, do note additions in the section `environment:` in the service satnogs_client needs to be added as well.
 
 ## Addons
 The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented line below the default image.
-Some additional settings is needed to activate it's functionality, simply remove the comment (#) in front of the following lines in `station.env`:
-```commandline
+Some additional settings is needed to activate its functionality, simply remove the comment (#) in front of the following lines in `station.env`:
+```
 SATNOGS_PRE_OBSERVATION_SCRIPT=satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
 SATNOGS_POST_OBSERVATION_SCRIPT=satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
 UDP_DUMP_HOST=0.0.0.0
@@ -83,6 +89,9 @@ UDP_DUMP_HOST=0.0.0.0
 
 ## Development and building
 TODO, building images, choosing own repos etc.
+
+## Multiple stations on one host
+TODO, separating the directories by station name, adressning the rtl-sdr by ID.
 
 # Install Docker.io
 

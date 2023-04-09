@@ -9,7 +9,7 @@ You do not need to clone this repo to run the image.
 ## Basic parts of docker, [Official overview](https://docs.docker.com/get-started/overview/)
 ***Images*** are usually hosted on a registry, for example hub.docker.com, from where you can pull them to your system.
 They are the complete software bundled to run an application, in this case a debian image and a lot of packages installed that is required for satnogs-client.<br>
-***Container*** is the running instance of an image and is basically a isolated environment where you run the app.
+***Container*** is the running instance of an image and is basically an isolated environment where you run the app.
 They are always start fresh from the image and can be modified, but it's non-persistent so after a stop any changes are lost.<br>
 ***Volumes*** is either a persistent storage for containers or bind-mounted to your host for configuration or storage.
 
@@ -84,7 +84,7 @@ To see what it's doing you can run the log viewer `docker logs satnogs-client -f
 Starting and stopping a container can be done with `docker start satnogs-client` and `docker stop satnogs-client`.<br>
 
 The client-up.sh script details:<br>
-`docker run` is the command to create a instance of an image.<br>
+`docker run` is the command to create an instance of an image.<br>
 `--name satnogs-client` giving it a name.<br>
 `--device=/dev/bus/usb/` mapping usb devices into the container, required for rtl-sdr but not plutosdr.<br>
 `--tmpfs /tmp` creating a tmpfs of /tmp as satnogs-client stores it's running data here.<br>
@@ -116,7 +116,7 @@ Stopping a container does not change the tag, you need to remove and recreate it
 
 
 ## Addons
-[gr-satellites](https://github.com/daniestevez/gr-satellites) is a popular demod and decoder and there's a integration into satnogs-client, this has been added to the :addons image and to activate it you will need to add a few rows to the config:
+[gr-satellites](https://github.com/daniestevez/gr-satellites) is a popular demod and decoder and there's an integration into satnogs-client, this has been added to the :addons image and to activate it you will need to add a few rows to the config:
 ```
 SATNOGS_PRE_OBSERVATION_SCRIPT="satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
 SATNOGS_POST_OBSERVATION_SCRIPT="satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
@@ -125,7 +125,7 @@ UDP_DUMP_HOST="0.0.0.0"
 And change the tag in the client-up.sh to: `-d knegge/satnogs-client:addons`.<br>
 Then run `./client-down.sh && ./client-up.sh` 
 
-The pre-/post observation script launches [grsat-wrapper.sh](https://github.com/kng/satnogs_gr-satellites/blob/main/grsat-wrapper.sh) and this is the glue between gr-satellites and satnogs-client.<br>
+The pre-/-post observation script launches [grsat-wrapper.sh](https://github.com/kng/satnogs_gr-satellites/blob/main/grsat-wrapper.sh) and this is the glue between gr-satellites and satnogs-client.<br>
 Make sure to remove or comment out these 3 lines if you're running the :latest tag instead of :addons.<br>
 
 ## Test SDR
@@ -178,7 +178,7 @@ docker pull knegge/satnogs-auto-scheduler:latest
 ./scheduler-up.sh
 ```
 
-Additionally you will need to add this to the `~/satnogs-config`:
+Additionally ,you will need to add this to the `~/satnogs-config`:
 ```
 SATNOGS_SCHEDULE_EXTRA="-d 1.2"
 SATNOGS_DB_API_TOKEN=""
