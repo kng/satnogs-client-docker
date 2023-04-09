@@ -1,4 +1,4 @@
-# Guide for dockerized satnogs-client
+# Guide for LSF satnogs-client with docker compose
 
 ## Intro
 This is aimed for those who want to try out the client in docker and thinks it's a bit too complicated.<br>
@@ -14,7 +14,7 @@ They are always start fresh from the image and can be modified, but it's non-per
 
 ***Compose*** This is the main difference from the [old guide](../GUIDE.md), where everything is controlled with the [docker-compose](docker-compose.yml).
 In this file all the different services (essentially containers) are specified and all it's settings and relationships between them.
-The containers exist on a separate network in this configuration, so rigctld runs in its own container and the satnogs-client talks to this over this network.
+The containers exist on a separate network in this configuration, so rigctld runs in its own container and the satnogs-client talks to it over this network.
 What this means is that you don't need a bunch of scripts to start/stop/update everything.
 It also means that you don't run several services in the same container.
 By default, it creates a stack that is named after the directory the compose file is located in.
@@ -30,14 +30,14 @@ See the [docker installation](#install-dockerio) at the bottom of this page.
 ## Configuration
 
 Start with cloning this repo, or downloading the files in [lsf/](/lsf) to a local directory.
-````commandline
+````shell
 git clone https://github.com/kng/satnogs-client-docker.git
 cd satnogs-client-docker/lsf
 ````
 
 The file `station.env` contains all the station variables (earlier in /etc/default/satnogs-client), some of the variables that is important to the function of the stack is located in the compose file.
 On a fresh install, copy the `station.env-dist` to `station.env` and edit it.
-```commandline
+```shell
 cp station.env-dist station.env
 nano station.env
 ```
@@ -52,17 +52,17 @@ When you edit the compose file or configuration it will try to figure out what n
 For example editing the SDR gain, it will recreate and restart the client but not rigctld.
 
 Starting the stack (and updating after changed config):
-```commandline
+```shell
 docker-compose up -d
 ```
 
 Stopping the stack:
-```commandline
+```shell
 docker-compose down
 ```
 
 Updating the images and bringing the stack up:
-```commandline
+```shell
 docker-compose up -d --pull
 ```
 
@@ -70,7 +70,7 @@ docker-compose up -d --pull
 
 Inside each container, the logs are output to stdout, which makes them visible from outside the container in the logs.
 Starting to monitor the running stack:
-```commandline
+```shell
 docker-compose logs -f
 ```
 
@@ -96,19 +96,27 @@ TODO, separating the directories by station name, adressning the rtl-sdr by ID.
 # Install Docker.io
 
 In Debian bullseye there's already a docker package, so installation is easy:
-```
+```shell
 sudo apt install docker.io apparmor
 sudo apt -t bullseye-backports install docker-compose
 sudo adduser pi docker
 ```
 Make sure to match the username, where pi is used here above.
-The reason for using backports is the version of compose in bullseye is 1.25 and lacks cgroup support, the backport is version 1.27
+Re-login for the group permission to take effect.
 
-Re-login for the group premission to take effect.
+The reason for using backports is the version of compose in bullseye is 1.25 and lacks cgroup support, the backport is version 1.27
+<br>If your dist doesn't have backports, enable with this, and try the installation of docker-compose again:
+```shell
+echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" | sudo tee /etc/apt/sources.list.d/backports.list
+suod apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  648ACFD622F3D138 0E98404D386FA1D9
+sudo apt update
+```
+If you cannot get a good compose version with your dist, please follow [the official guide](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually).
+
 
 ## Recommended install: [Portainer](https://docs.portainer.io/start/install/server/docker/linux)
 
-```
+```shell
 docker volume create portainer_data
 docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 ```
@@ -119,7 +127,7 @@ Then browse to https://yourDocker:9443 and follow the instruction, use local soc
 
 Refer to [docker installation](https://docs.docker.com/engine/install/debian/) on how to get the latest installed on your system.<br>
 Short version, ymmv: Base image: Rasperry Pi OS 64bit or 32bit Lite (bullseye):
-```
+```shell
 # already installed: ca-certificates curl lsb-release
 # optional: tmux uidmap
 sudo apt update
