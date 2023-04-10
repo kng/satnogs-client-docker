@@ -44,6 +44,8 @@ nano station.env
 Make sure to populate all the lines that are not commented out as these are the important ones.
 Also note that the values should not be escaped with quotes or ticks.
 
+User guide for satnogs-client [configuration](https://docs.satnogs.org/projects/satnogs-client/en/stable/userguide.html#environment-variables).
+
 ## Bringing the stack up
 
 The `docker-compose` (on some systems it's `docker compose` without the hyphen) is the program controlling the creation, updating, building and termination of the stack.
@@ -74,9 +76,23 @@ Starting to monitor the running stack:
 docker-compose logs -f
 ```
 
-# Additional services and addons
+# Additional services, experimental and addons
 In the [maxed](docker-compose.maxed) yml there's some additional services that can be run, for example rotator and auto-scheduler.
 These can be copied in to the [docker-compose.yml](docker-compose.yml) to be activated, do note additions in the section `environment:` in the service satnogs_client needs to be added as well.
+
+## Experimental
+In the past, the experimental setting switched the station software over to bleeding edge, but the drawback was that you could not go back to stable if there were issues.
+This is no longer the case, as these are separated in images and they can easily be switched between as often you like.
+
+Editing the [docker-compose.yml](docker-compose.yml) and going down to the satnogs_client service, the `image:` key specifies the image used.
+In this case simply comment out the stable image and uncomment the unstable, or change to any other tag that might be available in the future.
+````yaml
+  satnogs_client:
+    image: 'librespace/satnogs-client:master'  # LSF stable docker image
+    #image: 'librespace/satnogs-client:master-unstable'  # LSF experimental docker image
+````
+The available tags you can use is listed [here](https://hub.docker.com/r/librespace/satnogs-client/tags), two tags are available today: master and master-unstable.
+<br>Recreate the container with the usual `docker-compose up -d` 
 
 ## Addons
 The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented line below the default image.

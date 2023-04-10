@@ -11,8 +11,10 @@ services:
     command: 'rigctld'
 
   satnogs_client:
-    image: 'librespace/satnogs-client:master'  # LSF docker image
-    #image: 'knegge/satnogs-client:lsf-addons'  # as above + gr-satellites and addons
+    image: 'librespace/satnogs-client:master'  # LSF stable docker image
+    #image: 'librespace/satnogs-client:master-unstable'  # LSF experimental docker image
+    #image: 'knegge/satnogs-client:lsf-addons'  # LSF stable + gr-satellites and addons
+    #image: 'knegge/satnogs-client:lsf-dev-addons'  # LSF unstable + gr-satellites and addons
     user: '999'
     read_only: true
     init: true  # init is needed when launching processes in the background

@@ -39,8 +39,10 @@ services:
     stop_grace_period: 1s
 
   satnogs_client:
-    image: 'librespace/satnogs-client:master'  # LSF docker image
-    #image: 'knegge/satnogs-client:lsf-addons'  # as above + gr-satellites and addons
+    image: 'librespace/satnogs-client:master'  # LSF stable docker image
+    #image: 'librespace/satnogs-client:master-unstable'  # LSF experimental docker image
+    #image: 'knegge/satnogs-client:lsf-addons'  # LSF stable + gr-satellites and addons
+    #image: 'knegge/satnogs-client:lsf-dev-addons'  # LSF unstable + gr-satellites and addons
     user: '999'
     read_only: true
     init: true  # init is needed when lauching processes in the background
@@ -72,7 +74,7 @@ services:
     build:
       context: https://gitlab.com/librespacefoundation/satnogs/satnogs-auto-scheduler.git  # Image not available yet
     user: '999'
-    #command: 'schedule_single_station.py -s 351'  # this command will run once and exit
+    #command: 'bash -c "schedule_single_station.py -s $$SATNOGS_STATION_ID"'  # this command will run once and exit, see restart: below!
     command: 'bash -c "while true; do schedule_single_station.py -s $$SATNOGS_STATION_ID; sleep 3600; done"'
     read_only: true
     env_file:
