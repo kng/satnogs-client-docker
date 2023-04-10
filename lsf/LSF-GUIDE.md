@@ -65,8 +65,11 @@ docker-compose down
 
 Updating the images and bringing the stack up:
 ```shell
-docker-compose up -d --pull
+docker-compose pull
+docker-compose up -d
 ```
+
+Over time there will be old images accumulating, these can be removed with `docker image prune -af`
 
 ## Monitoring and maintenance
 
@@ -75,6 +78,12 @@ Starting to monitor the running stack:
 ```shell
 docker-compose logs -f
 ```
+
+If you want to run commands inside the containers, this can be done with the following command:
+````shell
+docker-compose exec satnogs_client bash
+````
+The container can be any of the running services, not possible in stopped container thou. Exit with Ctrl-D or typing `exit`.
 
 # Additional services, experimental and addons
 In the [maxed](docker-compose.maxed) yml there's some additional services that can be run, for example rotator and auto-scheduler.
@@ -95,13 +104,18 @@ The available tags you can use is listed [here](https://hub.docker.com/r/libresp
 <br>Recreate the container with the usual `docker-compose up -d` 
 
 ## Addons
-The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented line below the default image.
+The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented lines below the default image.<br>
+Two images exist today, :lsf-addons which is bases on the stable :master, and :lsf-dev-addons which is based on experimental :master-unstable.<br>
 Some additional settings is needed to activate its functionality, simply remove the comment (#) in front of the following lines in `station.env`:
 ```
 SATNOGS_PRE_OBSERVATION_SCRIPT=satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
 SATNOGS_POST_OBSERVATION_SCRIPT=satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
 UDP_DUMP_HOST=0.0.0.0
 ```
+
+Please note that the pre-/-post scripts need to exist in the image, else observations will fail, so make sure to comment out the above lines if you go back to the default image.
+
+There is a lot more functionality in the addons, please check out the [repo](https://github.com/kng/satnogs-client-docker/tree/main/addons) for the latest information.
 
 ## Development and building
 TODO, building images, choosing own repos etc.
