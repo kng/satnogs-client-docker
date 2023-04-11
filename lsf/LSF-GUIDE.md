@@ -27,9 +27,11 @@ By default, it creates a stack that is named after the directory the compose fil
 ## Host system
 You will need to install the libraries and supporting sw/fw for your sdr device, including udev rules and blacklists.<br>
 Additional software such as soapysdr is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
+Make sure to keep the host clock synchronized, this is absolutely essential and easily solved with ntp.
 ```shell
-sudo apt install rtl-sdr
+sudo apt install rtl-sdr ntp
 echo "blacklist dvb_usb_rtl28xxu" | sudo tee /etc/modprobe.d/blacklist-rtlsdr.conf
+sudo modprobe -r dvb_usb_rtl28xxu
 ```
 
 See the [docker installation](#install-dockerio) at the bottom of this page.
@@ -139,9 +141,8 @@ In Debian bullseye there's already a docker package, so installation is easy:
 ```shell
 sudo apt install docker.io apparmor
 sudo apt -t bullseye-backports install docker-compose
-sudo adduser pi docker
+sudo adduser $(whoami) docker
 ```
-Make sure to match the username, where pi is used here above.
 Re-login for the group permission to take effect.
 
 The reason for using backports is the version of compose in bullseye is 1.25 and lacks cgroup support, the backport is version 1.27
@@ -181,5 +182,5 @@ sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 # add user to docker group, avoid needing sudo, re-login to apply
-sudo adduser pi docker
+sudo adduser $(whoami) docker
 ```
