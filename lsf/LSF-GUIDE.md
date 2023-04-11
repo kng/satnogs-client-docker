@@ -5,7 +5,9 @@ This is aimed for those who want to try out the client in docker and thinks it's
 I will try to explain the basic concepts and how to get up and running.<br>
 My preferred distro is Debian 11 (bullseye) and this guide will be tailored for it, but there should only be small differences to others.<br>
 
-## Basic parts of docker, [Official overview](https://docs.docker.com/get-started/overview/)
+## Basic description of Docker
+[Official overview](https://docs.docker.com/get-started/overview/)
+
 ***Images*** are usually hosted on a registry, for example hub.docker.com, from where you can pull them to your system.
 They are the complete software bundled to run an application, in this case a debian image and a lot of packages installed that is required for satnogs-client.<br>
 ***Container*** is the running instance of an image and is basically an isolated environment where you run the app.
@@ -19,11 +21,16 @@ What this means is that you don't need a bunch of scripts to start/stop/update e
 It also means that you don't run several services in the same container.
 By default, it creates a stack that is named after the directory the compose file is located in.
 
+***Stack*** In this context, is the resulting containers, network, volumes etc. that is created and controlled with compose.
+
 # Getting satnogs-client up and running
 ## Host system
 You will need to install the libraries and supporting sw/fw for your sdr device, including udev rules and blacklists.<br>
 Additional software such as soapysdr is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
-`sudo apt install rtl-sdr`
+```shell
+sudo apt install rtl-sdr
+echo "blacklist dvb_usb_rtl28xxu" | sudo tee /etc/modprobe.d/blacklist-rtlsdr.conf
+```
 
 See the [docker installation](#install-dockerio) at the bottom of this page.
 
