@@ -29,16 +29,18 @@ See the [docker installation](#install-dockerio) at the bottom of this page.
 
 ## Configuration
 
-Start with cloning this repo, or downloading the files in [lsf/](/lsf) to a local directory.
-````shell
-git clone https://github.com/kng/satnogs-client-docker.git
-cd satnogs-client-docker/lsf
-````
+Start with creating a directory with a name representing the station, this will be shown in several places in the resulting stack.
+It is also separates multiple stations running on the same host. 
+```shell
+mkdir -p station-351
+cd station-351
+wget https://github.com/kng/satnogs-client-docker/raw/main/lsf/docker-compose.yml
+wget -O station.env https://github.com/kng/satnogs-client-docker/raw/main/lsf/station.env-dist
+```
 
 The file `station.env` contains all the station variables (earlier in /etc/default/satnogs-client), some of the variables that is important to the function of the stack is located in the compose file.
-On a fresh install, copy the `station.env-dist` to `station.env` and edit it.
+Use your favourite editor to configure this:
 ```shell
-cp station.env-dist station.env
 nano station.env
 ```
 Make sure to populate all the lines that are not commented out as these are the important ones.
@@ -97,15 +99,16 @@ Editing the [docker-compose.yml](docker-compose.yml) and going down to the satno
 In this case simply comment out the stable image and uncomment the unstable, or change to any other tag that might be available in the future.
 ````yaml
   satnogs_client:
-    image: 'librespace/satnogs-client:master'  # LSF stable docker image
-    #image: 'librespace/satnogs-client:master-unstable'  # LSF experimental docker image
+    #image: registry.gitlab.com/librespacefoundation/satnogs/satnogs-client/satnogs-client:master  # LSF stable docker image
+    image: registry.gitlab.com/librespacefoundation/satnogs/satnogs-client/satnogs-client:master-unstable  # LSF experimental docker image
 ````
-The available tags you can use is listed [here](https://hub.docker.com/r/librespace/satnogs-client/tags), two tags are available today: master and master-unstable.
+The available tags you can use is listed on [gitlab registry](https://gitlab.com/librespacefoundation/satnogs/satnogs-client/container_registry/3553292) and on [dockerhub](https://hub.docker.com/r/librespace/satnogs-client/tags), two tags are available today: master and master-unstable.
 <br>Recreate the container with the usual `docker-compose up -d` 
 
 ## Addons
+The addons image is documented [here](../addons/README.md), there is a lot more functionality than just the gr-satellites integration.<br>
 The gr-satellites integration and addons can be activated by changing the `image:` in the service satnogs_client as seen in the commented lines below the default image.<br>
-Two images exist today, :lsf-addons which is bases on the stable :master, and :lsf-dev-addons which is based on experimental :master-unstable.<br>
+Two images exist today, `:lsf-addons` which is bases on the stable `:master`, and `:lsf-dev-addons` which is based on experimental `:master-unstable`.<br>
 Some additional settings is needed to activate its functionality, simply remove the comment (#) in front of the following lines in `station.env`:
 ```
 SATNOGS_PRE_OBSERVATION_SCRIPT=satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
@@ -113,7 +116,7 @@ SATNOGS_POST_OBSERVATION_SCRIPT=satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP
 UDP_DUMP_HOST=0.0.0.0
 ```
 
-Please note that the pre-/-post scripts need to exist in the image, else observations will fail, so make sure to comment out the above lines if you go back to the default image.
+Please note that the -pre/-post scripts need to exist in the image, else observations will fail, so make sure to comment out the above lines if you go back to the default image.
 
 There is a lot more functionality in the addons, please check out the [repo](https://github.com/kng/satnogs-client-docker/tree/main/addons) for the latest information.
 
