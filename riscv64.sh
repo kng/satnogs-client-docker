@@ -2,7 +2,7 @@
 
 TAG="riscv64"
 export DOCKER_BUILDKIT=1
-ARGS="--build-arg BASE_IMAGE=ubuntu:focal"
+ARGS="--build-arg BASE_IMAGE=riscv64/ubuntu:focal"
 # --progress=plain
 
 if [ "$1" == "sbuild" ]; then
