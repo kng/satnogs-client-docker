@@ -40,16 +40,19 @@ RUN cd satnogs-flowgraphs && \
     ./debian/rules binary
 RUN dpkg -i satnogs-flowgraphs_*.deb
 
-RUN --mount=type=cache,id=debs,target=/debs mkdir -p /debs/$(dpkg --print-architecture)/ && cp gr-satnogs_*.deb libgnuradio-satnogs_*.deb gr-soapy_*.deb libgnuradio-soapy_*.deb satnogs-flowgraphs_*.deb /debs/$(dpkg --print-architecture)/
+RUN --mount=type=cache,id=debs,target=/debs \
+    mkdir -p /debs/$(dpkg --print-architecture)/ && \
+    cp gr-satnogs_*.deb libgnuradio-satnogs_*.deb gr-soapy_*.deb libgnuradio-soapy_*.deb satnogs-flowgraphs_*.deb /debs/$(dpkg --print-architecture)/ && \
+    ls -l /debs > /usr/src/debs.list
 
-WORKDIR /env
-RUN virtualenv -p python3 --no-seed .
-RUN . bin/activate && \
-    pip3 install --upgrade pip setuptools wheel ujson --prefer-binary --extra-index-url https://www.piwheels.org/simple
-RUN --mount=type=cache,id=wheels,target=/wheels rm -f /wheels/satnogs* && \
+WORKDIR /var/lib/satnogs
+RUN --mount=type=cache,id=wheels,target=/wheels \
+    rm -f /wheels/satnogs* && \
+    virtualenv -p python3 --no-seed . && \
     . bin/activate && \
-    pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
-    ls -l /wheels > /wheels.list
+    pip3 install --upgrade pip setuptools wheel ujson --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
+    pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
+    ls -l /wheels > /usr/src/wheels.list
 
 FROM $BASE_IMAGE as runner
 MAINTAINER sa2kng <knegge@gmail.com>
@@ -63,14 +66,22 @@ RUN apt -y update && \
     xargs -a /usr/src/packages.client apt install --no-install-recommends -qy && \
     rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,id=debs,target=/debs apt -y update && apt install -qy /debs/$(dpkg --print-architecture)/*.deb && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,id=debs,target=/debs \
+    apt -y update && \
+    apt install -qy /debs/$(dpkg --print-architecture)/*.deb && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -g 995 satnogs && useradd -g satnogs -G dialout,plugdev -m -d /var/lib/satnogs -s /bin/bash -u 999 satnogs
+RUN groupadd -g 995 satnogs && \
+    useradd -g satnogs -G dialout,plugdev -m -d /var/lib/satnogs -s /bin/bash -u 999 satnogs
 
 WORKDIR /var/lib/satnogs
 USER satnogs
 
-RUN --mount=type=cache,id=wheels,target=/wheels virtualenv -p python3 --system-site-packages . && . bin/activate && pip3 install satnogs-client --find-links=/wheels --prefix=/var/lib/satnogs --no-index && rm -rf .cache/pip/
+RUN --mount=type=cache,id=wheels,target=/wheels \
+    virtualenv -p python3 --system-site-packages . && \
+    . bin/activate && \
+    pip3 install satnogs-client --find-links=/wheels --prefix=/var/lib/satnogs --no-index && \
+    rm -rf .cache/pip/
 
 COPY entrypoint.sh /
 ENTRYPOINT ["bash", "/entrypoint.sh"]
