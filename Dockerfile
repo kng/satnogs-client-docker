@@ -26,17 +26,17 @@ RUN git clone --depth 1 --branch $FLOWGRAPHS_BRANCH $FLOWGRAPHS_URL
 RUN git clone --depth 1 --branch $GRSOAPY_BRANCH $GRSOAPY_URL
 
 RUN cd gr-soapy && \
-    sed -i 's/0.0-1/2.1-1/g' debian/changelog && \
+    sed -i "s/0.0-1/$GRSOAPY_VER/g" debian/changelog && \
     ./debian/rules binary
 RUN dpkg -i gr-soapy_*.deb libgnuradio-soapy_*.deb
 
 RUN cd gr-satnogs && \
-    sed -i 's/0.0-1/2.3-1/g' debian/changelog && \
+    sed -i "s/0.0-1/$GRSATNOGS_VER/g" debian/changelog && \
     ./debian/rules binary
 RUN dpkg -i gr-satnogs_*.deb libgnuradio-satnogs_*.deb
 
 RUN cd satnogs-flowgraphs && \
-    sed -i 's/0.0-1/1.5-1/g' debian/changelog && \
+    sed -i "s/0.0-1/$FLOWGRAPHS_VER/g" debian/changelog && \
     ./debian/rules binary
 RUN dpkg -i satnogs-flowgraphs_*.deb
 
@@ -45,18 +45,16 @@ RUN --mount=type=cache,id=debs,target=/debs \
     cp gr-satnogs_*.deb libgnuradio-satnogs_*.deb gr-soapy_*.deb libgnuradio-soapy_*.deb satnogs-flowgraphs_*.deb /debs/$(dpkg --print-architecture)/ && \
     ls -l /debs > /usr/src/debs.list
 
+ARG MPLSETUPCFG=/etc/mplsetup.cfg
 WORKDIR /var/lib/satnogs
 RUN --mount=type=cache,id=wheels,target=/wheels \
+    printf "[libs]\nsystem_freetype = true" > $MPLSETUPCFG && \
+    printf "[global]\nextra-index-url=https://www.piwheels.org/simple" > /etc/pip.conf && \
     rm -f /wheels/satnogs* && \
     virtualenv -p python3 --no-seed . && \
     . bin/activate && \
-    pip3 install --upgrade pip setuptools wheel ujson --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
-    git clone --depth 1 --branch v3.5.3 https://github.com/matplotlib/matplotlib.git && \
-    cd matplotlib && \
-    echo "[libs]" > mplsetup.cfg && echo "system_freetype = true" >> mplsetup.cfg && \
-    pip3 wheel -w /wheels --find-links=/wheels --prefer-binary . && \
-    cd .. && \
-    pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
+    pip3 install --upgrade pip setuptools wheel ujson --find-links=/wheels --prefer-binary && \
+    pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --find-links=/wheels --prefer-binary && \
     ls -l /wheels > /usr/src/wheels.list
 
 FROM $BASE_IMAGE as runner
