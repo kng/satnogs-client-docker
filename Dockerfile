@@ -51,6 +51,11 @@ RUN --mount=type=cache,id=wheels,target=/wheels \
     virtualenv -p python3 --no-seed . && \
     . bin/activate && \
     pip3 install --upgrade pip setuptools wheel ujson --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
+    git clone --depth 1 --branch v3.5.3 https://github.com/matplotlib/matplotlib.git && \
+    cd matplotlib && \
+    echo "[libs]" > mplsetup.cfg && echo "system_freetype = true" >> mplsetup.cfg && \
+    pip3 wheel -w /wheels --find-links=/wheels --prefer-binary . && \
+    cd .. && \
     pip3 wheel git+$CLIENT_URL@$CLIENT_BRANCH -w /wheels --find-links=/wheels --prefer-binary --extra-index-url https://www.piwheels.org/simple && \
     ls -l /wheels > /usr/src/wheels.list
 

@@ -15,6 +15,7 @@ libboost-system-dev
 libboost-test-dev
 libboost-thread-dev
 libconfig++-dev
+libfreetype6-dev
 libgmp-dev
 libhdf5-103
 libhdf5-dev
