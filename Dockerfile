@@ -64,13 +64,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
 COPY packages.client /usr/src/
-RUN apt -y update && \
-    apt -y upgrade && \
-    xargs -a /usr/src/packages.client apt install --no-install-recommends -qy && \
-    rm -rf /var/lib/apt/lists/*
-
 RUN --mount=type=cache,id=debs,target=/debs \
     apt -y update && \
+    apt -y upgrade && \
+    xargs -a /usr/src/packages.client apt install --no-install-recommends -qy && \
     apt install -qy /debs/$(dpkg --print-architecture)/*.deb && \
     rm -rf /var/lib/apt/lists/*
 
