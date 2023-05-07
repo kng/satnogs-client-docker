@@ -63,7 +63,7 @@ RUN apt -y update && \
     xargs -a /usr/src/packages.client apt install --no-install-recommends -qy && \
     rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,id=debs,target=/debs dpkg -R -i /debs/$(dpkg --print-architecture)/
+RUN --mount=type=cache,id=debs,target=/debs apt -y update && apt install -qy /debs/$(dpkg --print-architecture)/*.deb && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 995 satnogs && useradd -g satnogs -G dialout,plugdev -m -d /var/lib/satnogs -s /bin/bash -u 999 satnogs
 
