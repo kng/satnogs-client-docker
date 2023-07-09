@@ -23,7 +23,7 @@ SAMPLERATE="48000"
 if [ "${1^^}" == "START" ] && [ "${DIREWOLF_ENABLE^^}" == "YES" ]; then
     echo "Starting direwolf"
     $SDR_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -f "$DIREWOLF_FREQ" -s "$SAMPLERATE" - \
-    | $DIREWOLF_BIN -c "$DIREWOLF_CONF" -r SAMPLERATE -D 1 -l "$HOME" -t 0
+    | $DIREWOLF_BIN -c "$DIREWOLF_CONF" -r "$SAMPLERATE" -D 1 -l "$HOME" -t 0 &
     echo $! > "$DIREWOLF_PID"
 fi
 
@@ -31,6 +31,7 @@ if [ "${1^^}" == "STOP" ]; then
    if [ -f "$DIREWOLF_PID" ]; then
        echo "Stopping direwolf"
        kill "$(cat "$DIREWOLF_PID")"
+       killall "$SDR_BIN"
        rm -f "$DIREWOLF_PID"
    fi
 fi
