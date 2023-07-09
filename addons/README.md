@@ -40,10 +40,42 @@ It will execute the script, then execute the arguments after it, in this case th
 This will test the sdr settings by launching a flowgraph and record waterfall and audio, it can be used to quickly verify that the settings in `station.env` is correct.
 
 ## [bandscan](bandscan.sh)
-A bandscan script that can run in between observations to monitor a frequency and log the data to be later used in the [strf tools](https://github.com/cbassa/strf) 
+A bandscan script that can run in between observations to monitor a frequency and log the data to be later used in the [strf tools](https://github.com/cbassa/strf)<br>
+The `rx_sdr` will use the device, antenna, gain etc from the satnogs settings.<br>
+Configuration in `station.env`, the only required is enable, all the others have defaults:
+```shell
+BANDSCAN_ENABLE=yes
+BANDSCAN_FREQ=435000000 # default 401M
+BANDSCAN_SAMPLERATE=2e6 # override the default from SATNOGS_RX_SAMP_RATE
+BANDSCAN_DIR=/srv/bandscan # make sure to bind-mount a path from the host
+```
 
 ## [direwolf](direwolf.sh)
-Run [direwolf](https://github.com/wb2osz/direwolf) and demodulate APRS in between observations.
+Run [direwolf](https://github.com/wb2osz/direwolf) and demodulate APRS in between observations.<br>
+The `rx_sdr` will use the device, antenna, gain etc from the satnogs settings.<br>
+Configuration in `station.env`, the only required is  enable, all the others have defaults:
+```
+DIREWOLF_ENABLE=yes
+DIREWOLF_FREQ=144800000 # EU 144.8M, modify for NA 144.39M
+DIREWOLF_CONF=/etc/direwolf.conf # change to /var/lib/satnogs-client/direwolf.conf for custom config
+```
+The default config only displays decoded APRS. If you want to run it as a IGate you will need to build a custom configuration and save it in the home volume.<br>
+Use a text editor to make the config, then copy the contents and paste it in the following procedure.<br>
+Launch a shell in the running client container `docker compose exec satnogs_client bash`.<br>
+Terminate the cat command with Ctrl-D after pasting in the contents:
+```shell
+cat > ~/direwolf.conf
+ADEVICE stdin null
+ADEVICE - null
+MYCALL xx-10
+IGSERVER euro.aprs2.net
+IGLOGIN xx-10 12345
+IBEACON DELAY=1 EVERY=30 VIA=WIDE1-1 SENDTO=IG
+PBEACON DELAY=1 EVERY=30 OVERLAY=S SYMBOL="digi" LAT=xx^yy.zzN LONG=xxx^yy.zzE HEIGHT=20 POWER=0 GAIN=4 COMMENT="SatNOGS #xx" VIA=WIDE1-1,WIDE2-1 SENDTO=IG
+```
+Make sure to change all xx/yy/zz to values for your station.<br>
+Normally the direwolf script is started after a observation, so it doesn't start automatically when the container is started.
+You can launch it manually in a docker shell with `direwolf.sh start`.
 
 ## [uhd_images_downloader](uhd_images_downloader.py)
 Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)

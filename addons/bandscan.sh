@@ -28,7 +28,8 @@ if [ "${1^^}" == "START" ] && [ "${BANDSCAN_ENABLE^^}" == "YES" ]; then
     SAVEDIR="$BANDSCAN_DIR/$BANDSCAN_FREQ/$DAY"
     mkdir -p "$SAVEDIR" "$(dirname "$BANDSCAN_PID")"
     INDEX=$(find "$SAVEDIR" -mindepth 1 -maxdepth 1 -type f | wc -l)
-    $BANDSCAN_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -s "$BANDSCAN_SAMPLERATE" -f "$BANDSCAN_FREQ" -F "$OUTPUT_FORMAT" - | rffft -q -f "$BANDSCAN_FREQ" -s "$BANDSCAN_SAMPLERATE" -F "$INPUT_FORMAT" -c 50 -t 1 -p "$SAVEDIR" -o "$DAY" -S "$INDEX" &
+    $BANDSCAN_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -s "$BANDSCAN_SAMPLERATE" -f "$BANDSCAN_FREQ" -F "$OUTPUT_FORMAT" - \
+    | rffft -q -f "$BANDSCAN_FREQ" -s "$BANDSCAN_SAMPLERATE" -F "$INPUT_FORMAT" -c 50 -t 1 -p "$SAVEDIR" -o "$DAY" -S "$INDEX" &
     echo $! > "$BANDSCAN_PID"
 fi
 
