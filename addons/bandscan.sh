@@ -10,6 +10,12 @@ fi
 if [ -z "$BANDSCAN_DIR" ]; then
     BANDSCAN_DIR=/srv/bandscan
 fi
+if [ -z "$SATNOGS_PPM_ERROR" ]; then
+    SATNOGS_PPM_ERROR=0
+fi
+if [ -z "$SATNOGS_RF_GAIN" ]; then
+    SATNOGS_RF_GAIN=0
+fi
 
 BANDSCAN_PID="/tmp/.satnogs/bandscan.pid"
 BANDSCAN_BIN="rx_sdr"

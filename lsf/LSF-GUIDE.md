@@ -149,7 +149,7 @@ The reason for using backports is the version of compose in bullseye is 1.25 and
 <br>If your dist doesn't have backports, enable with this, and try the installation of docker-compose again:
 ```shell
 echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" | sudo tee /etc/apt/sources.list.d/backports.list
-suod apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  648ACFD622F3D138 0E98404D386FA1D9
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  648ACFD622F3D138 0E98404D386FA1D9
 sudo apt update
 ```
 If you cannot get a good compose version with your dist, please follow [the official guide](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually).
@@ -159,9 +159,16 @@ If you cannot get a good compose version with your dist, please follow [the offi
 
 ```shell
 docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+docker run -d \
+    -p 8000:8000 \
+    -p 9443:9443 \
+    --name portainer \
+    --restart=always \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v portainer_data:/data \
+    portainer/portainer-ce:latest
 ```
-Then browse to https://yourDocker:9443 and follow the instruction, use local socket in the "Get started" section.
+Then browse to https://127.0.0.1:9443 (change to the correct host on the network) and follow the instruction, use local socket in the "Get started" section.
 
 
 # For reference: Install Docker Engine (docker.com)

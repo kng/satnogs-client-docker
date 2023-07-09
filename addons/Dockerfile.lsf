@@ -97,6 +97,7 @@ COPY test-flowgraph.sh \
      iq_dump_rename.sh \
      bandscan.sh \
      /target/usr/bin/
+COPY direwolf.conf /target/etc/
 COPY --chown=satnogs-client:satnogs-client sat.cfg /target/var/lib/satnogs-client/.gr_satellites/sat.cfg
 
 ENTRYPOINT []
@@ -105,6 +106,6 @@ CMD ["bash"]
 FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG}
 COPY --from=builder /target /
 
-RUN apt update && apt install -y git jq && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y git jq direwolf && rm -rf /var/lib/apt/lists/*
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 
