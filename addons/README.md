@@ -42,6 +42,9 @@ This will test the sdr settings by launching a flowgraph and record waterfall an
 ## [bandscan](bandscan.sh)
 A bandscan script that can run in between observations to monitor a frequency and log the data to be later used in the [strf tools](https://github.com/cbassa/strf) 
 
+## [direwolf](direwolf.sh)
+Run [direwolf](https://github.com/wb2osz/direwolf) and demodulate APRS in between observations.
+
 ## [uhd_images_downloader](uhd_images_downloader.py)
 Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)
 
