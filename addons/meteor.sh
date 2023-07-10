@@ -37,10 +37,9 @@ if [ "${CMD^^}" == "START" ]; then
       echo "WARNING: find_samp_rate.py did not return valid sample rate!"
     fi
 
-    nc -ul "$UDP_DUMP_PORT" | \
+    ( nc -ul "$UDP_DUMP_PORT" & echo $! > "$METEOR_PID" ) | \
     meteor_demod --batch --quiet -O 8 -f 128 -s "$SAMP" -m oqpsk --bps 16 --stdout - | \
     meteor_decode --batch --quiet --diff -a 65,65,64 -o "$IMAGE" - &
-    echo $! > "$METEOR_PID"
   fi
 fi
 
@@ -48,8 +47,6 @@ if [ "${CMD^^}" == "STOP" ]; then
   if [ -f "$METEOR_PID" ]; then
     kill "$(cat "$METEOR_PID")"
     rm -f "$METEOR_PID"
-    # killing the last PID doesn't seem to take down the tree
-    killall -q nc meteor_demod meteor_decode
   fi
   if [ -f "$IMAGE" ]; then
     mv -f "$IMAGE" "$DATA/data_${ID}_${DATE}.png"
