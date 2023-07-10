@@ -4,3 +4,4 @@
 bandscan.sh stop
 direwolf.sh stop
 grsat-wrapper.sh start "$@"
+meteor.sh start "$@"

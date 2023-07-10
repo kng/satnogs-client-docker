@@ -2,6 +2,7 @@
 # SATNOGS_POST_OBSERVATION_SCRIPT="satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
 
 grsat-wrapper.sh stop "$@"
+meteor.sh stop "$@"
 iq_dump_rename.sh "$@"
 bandscan.sh start
 direwolf.sh start

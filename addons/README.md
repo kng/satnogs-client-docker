@@ -77,6 +77,15 @@ Make sure to change all xx/yy/zz to values for your station.<br>
 Normally the direwolf script is started after a observation, so it doesn't start automatically when the container is started.
 You can launch it manually in a docker shell with `direwolf.sh start`.
 
+## [meteor](meteor.sh)
+Demodulate Meteor-M2 images from the UDP stream.
+Based on [meteor_demod](https://github.com/dbdexter-dev/meteor_demod) and [meteor_decode](https://github.com/dbdexter-dev/meteor_decode)<br>
+Configuration in `station.env`:
+```
+UDP_DUMP_HOST=0.0.0.0 # required, enable UDP output from flowgraphs
+METEOR_NORAD=57166 # optional, space separated list of ID's to activate demodulation
+```
+
 ## [uhd_images_downloader](uhd_images_downloader.py)
 Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)
 

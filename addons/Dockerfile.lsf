@@ -87,7 +87,18 @@ RUN cd rx_tools &&\
 RUN git clone --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
-# test run flowgraph with current settings
+# Meteor-M2 series demodulator
+RUN git clone --depth=1 https://github.com/dbdexter-dev/meteor_demod.git
+RUN cd meteor_demod &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# Meteor-M series LRPT decoder
+RUN git clone --depth=1 https://github.com/dbdexter-dev/meteor_decode.git
+RUN cd meteor_decode &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
 COPY test-flowgraph.sh \
      wf2png.py \
      liveupdate-satyaml.sh \
@@ -107,6 +118,6 @@ CMD ["bash"]
 FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG}
 COPY --from=builder /target /
 
-RUN apt update && apt install -y git jq direwolf && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y git jq direwolf netcat-openbsd && rm -rf /var/lib/apt/lists/*
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 
