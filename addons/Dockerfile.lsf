@@ -108,6 +108,7 @@ COPY test-flowgraph.sh \
      iq_dump_rename.sh \
      bandscan.sh \
      direwolf.sh \
+     meteor.sh \
      /target/usr/bin/
 COPY direwolf.conf /target/etc/
 COPY --chown=satnogs-client:satnogs-client sat.cfg /target/var/lib/satnogs-client/.gr_satellites/sat.cfg
