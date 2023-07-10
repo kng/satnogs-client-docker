@@ -111,6 +111,8 @@ COPY test-flowgraph.sh \
      /target/usr/bin/
 COPY direwolf.conf /target/etc/
 COPY --chown=satnogs-client:satnogs-client sat.cfg /target/var/lib/satnogs-client/.gr_satellites/sat.cfg
+# Don't rely on repository file permissions, COPY --chmod requires BuildKit
+RUN chmod 0755 /target/usr/bin/*
 
 ENTRYPOINT []
 CMD ["bash"]
