@@ -99,6 +99,9 @@ RUN cd meteor_decode &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+COPY udp2ishort.grc /
+RUN grcc /udp2ishort.grc -o /target/usr/bin/
+
 COPY test-flowgraph.sh \
      wf2png.py \
      liveupdate-satyaml.sh \
