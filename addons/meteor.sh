@@ -37,7 +37,7 @@ if [ "${CMD^^}" == "START" ]; then
       echo "WARNING: find_samp_rate.py did not return valid sample rate!"
     fi
 
-    ( udp2ishort.py & echo $! > "$METEOR_PID" ) | \
+    ( udp2ishort.py -p "$UDP_DUMP_PORT" & echo $! > "$METEOR_PID" ) | \
     meteor_demod --batch --quiet -O 8 -f 128 -s "$SAMP" -m oqpsk --bps 16 --stdout - | \
     meteor_decode --batch --quiet --diff -a 65,65,64 -o "$IMAGE" - &
   fi
