@@ -33,21 +33,18 @@ if [ "${CMD^^}" == "START" ]; then
     fi
     SAMP=$(find_samp_rate.py "$BAUD" "$SCRIPT")
     if [ -z "$SAMP" ]; then
-      SAMP=72000
+      SAMP=144000
       echo "WARNING: find_samp_rate.py did not return valid sample rate!"
     fi
-    case ${SAMP} in
-      80000)
-        ( udp2ishort.py -p "$UDP_DUMP_PORT" & echo $! > "$METEOR_PID" ) | \
-        meteor_demod --batch --quiet -O 8 -f 128 -s "$SAMP" -r 80000 -m oqpsk --bps 16 --stdout - | \
-        meteor_decode --batch --quiet --int --diff -a 65,65,64 -o "$IMAGE" - &
-        ;;
-      *)
-        ( udp2ishort.py -p "$UDP_DUMP_PORT" & echo $! > "$METEOR_PID" ) | \
-        meteor_demod --batch --quiet -O 8 -f 128 -s "$SAMP" -m oqpsk --bps 16 --stdout - | \
-        meteor_decode --batch --quiet --diff -a 65,65,64 -o "$IMAGE" - &
-        ;;
-    esac
+    SYMRATE=$((${BAUD%.*} * 2))
+    if [ ${SYMRATE} == 80000 ]; then
+      INTERLACE="--int"
+    else
+      INTERLACE=""
+    fi
+    ( udp2ishort.py -p "$UDP_DUMP_PORT" & echo $! > "$METEOR_PID" ) | \
+    meteor_demod --batch --quiet -O 8 -f 128 -s "$SAMP" -r "$SYMRATE" -m oqpsk --bps 16 --stdout - | \
+    meteor_decode --batch --quiet "$INTERLACE" --diff -a 65,65,64 -o "$IMAGE" - &
   fi
 fi
 
