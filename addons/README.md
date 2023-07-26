@@ -92,6 +92,14 @@ Downloads USRP images from Ettus Research, this is now included in the base imag
 ## [wf2png](wf2png.py)
 This converts a waterfall .dat file to .png
 
+## [satnogs-monitor](https://github.com/wose/satnogs-monitor/)
+Rust application for monitoring your station live.<br>
+Refer to the [example config](https://github.com/wose/satnogs-monitor/blob/master/monitor/examples/config.toml).<br>
+Open it up locally in a text editor, edit, copy the contents and paste into this:<br>
+`docker-compose exec satnogs_client bash -c "mkdir -p ~/.config/satnogs-monitor/ && cat > ~/.config/satnogs-monitor/config.toml"`<br>
+After pasting the contents, press Ctrl-D<br>
+Launching it with `docker-compose exec satnogs_client satnogs-monitor`
+
 ## Repositories built
 
 beesat-sdr for mobitex support https://github.com/daniestevez/beesat-sdr <br>
@@ -104,3 +112,7 @@ satellite orbit prediction for tle https://github.com/la1k/libpredict <br>
 kalibrate for rtl_sdr https://github.com/steve-m/kalibrate-rtl <br>
 rx_fm rx_power rx_sdr https://github.com/rxseger/rx_tools <br>
 rffft from strf https://github.com/cbassa/strf <br>
+Meteor-M2 series demodulator from https://github.com/dbdexter-dev/meteor_demod <br>
+Meteor-M series LRPT decoder https://github.com/dbdexter-dev/meteor_decode <br>
+SatNOGS Monitor https://github.com/wose/satnogs-monitor <br>
+
