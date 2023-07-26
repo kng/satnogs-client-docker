@@ -115,4 +115,5 @@ rffft from strf https://github.com/cbassa/strf <br>
 Meteor-M2 series demodulator from https://github.com/dbdexter-dev/meteor_demod <br>
 Meteor-M series LRPT decoder https://github.com/dbdexter-dev/meteor_decode <br>
 SatNOGS Monitor https://github.com/wose/satnogs-monitor <br>
+URESAT-1 decoder https://github.com/AMSAT-EA/URESAT-1-decoder <br>
 

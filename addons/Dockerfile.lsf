@@ -116,6 +116,12 @@ RUN cd satnogs-monitor/monitor &&\
     cargo update &&\
     cargo build --release --out-dir /target/usr/bin -Z unstable-options
 
+# URESAT-1 decoder
+RUN git clone --depth=1 https://github.com/AMSAT-EA/URESAT-1-decoder.git
+RUN cd URESAT-1-decoder &&\
+    make &&\
+    install -m 755 tlmrx32 /target/usr/bin
+
 COPY udp2ishort.grc /
 RUN grcc /udp2ishort.grc -o /target/usr/bin/
 
