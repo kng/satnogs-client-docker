@@ -136,8 +136,13 @@ TODO, building images, choosing own repos etc.
 TODO, separating the directories by station name, adressning the rtl-sdr by ID.
 
 # Install Docker.io
+If you are using Debian 12 bookworm the installation should be pretty straightforward as the packages are new enough.
+```shell
+sudo apt install docker.io apparmor docker-compose
+sudo adduser $(whoami) docker
+```
 
-In Debian bullseye there's already a docker package, so installation is easy:
+In Debian 11 bullseye there is a docker package, but compose is too old, so we need to install it from backports:
 ```shell
 sudo apt install docker.io apparmor
 sudo apt -t bullseye-backports install docker-compose
@@ -152,8 +157,13 @@ echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free"
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  648ACFD622F3D138 0E98404D386FA1D9
 sudo apt update
 ```
-If you cannot get a good compose version with your dist, please follow [the official guide](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually).
-
+If you cannot get a good compose version with your dist, please follow [the official guide](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually).<br>
+I made a small script to fetch the latest compose and buildx ([YMMV](https://www.urbandictionary.com/define.php?term=ymmv)) [update-docker-cli.sh](../addons/update-docker-cli.sh):
+```shell
+wget https://github.com/kng/satnogs-client-docker/raw/main/addons/update-docker-cli.sh
+chmod 0755 update-docker-cli.sh
+./update-docker-cli.sh
+```
 
 ## Recommended install: [Portainer](https://docs.portainer.io/start/install/server/docker/linux)
 
