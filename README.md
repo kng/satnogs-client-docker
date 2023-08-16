@@ -1,8 +1,6 @@
 # satnogs-client-docker
 
-IMPORTANT: I'm moving to the [Libre Space Foundation](https://hub.docker.com/u/librespace) base images, the standalone build will stay for reference.
-
-The recommended guide for getting started [is here](lsf/LSF-GUIDE.md) for LSF images.
+### This branch is a legacy copy of the old branch, it will not be maintained.
 
 ## OLD Installation (see above)
 ***Please see the [guide](GUIDE.md) on how to get this up and running***.<br>
