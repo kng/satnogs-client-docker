@@ -1,7 +1,6 @@
 #!/bin/bash
-
-TAG="sa2kng"
 export DOCKER_BUILDKIT=1
+TAG="sa2kng"
 ARGS="--build-arg GRSATNOGS_URL=https://gitlab.com/knegge/gr-satnogs.git \
       --build-arg GRSATNOGS_BRANCH=master \
       --build-arg GRSOAPY_URL=https://gitlab.com/knegge/gr-soapy.git \
@@ -12,4 +11,3 @@ ARGS="--build-arg GRSATNOGS_URL=https://gitlab.com/knegge/gr-satnogs.git \
       --build-arg CLIENT_BRANCH=sa2kng"
 
 docker build -t librespace/satnogs-client:${TAG} ${ARGS} .
-

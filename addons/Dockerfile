@@ -6,7 +6,6 @@ USER root
 # install build env and required libs etc
 COPY packages.builder .
 RUN apt -y update && \
-    apt -y upgrade && \
     xargs -a packages.builder apt install -qy
 
 # install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
@@ -138,12 +137,11 @@ RUN chmod 0755 /target/usr/bin/*
 ENTRYPOINT []
 CMD ["bash"]
 
-FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG}
+FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
 COPY --from=builder /target /
 
 COPY packages.client .
 RUN apt -y update && \
-    apt -y upgrade && \
     xargs -a packages.client apt install -qy && \
     rm -rf /var/lib/apt/lists/*
 
