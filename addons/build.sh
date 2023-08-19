@@ -1,14 +1,11 @@
 #!/bin/bash
 
-#DEV=1
-
-if [ ! -z ${DEV} ]; then
-    # build only the builder, you can run it and test things
-    docker build -t knegge/satnogs-client:builder . --target builder
-    echo "Starting container... "
-    docker run --rm -it knegge/satnogs-client:builder
+if [ "${1^^}" == "DEV" ]; then
+    TAG="lsf-dev-addons"
+    SATNOGS_IMAGE_TAG="master-unstable"
 else
-    # build and append result to base image
-    docker build -t knegge/satnogs-client:addons .
+    TAG="lsf-addons"
+    SATNOGS_IMAGE_TAG="master"
 fi
 
+docker build -t librespace/satnogs-client:${TAG} --build-arg SATNOGS_IMAGE_TAG=${SATNOGS_IMAGE_TAG} .

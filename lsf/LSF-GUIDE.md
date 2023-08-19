@@ -158,7 +158,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  648ACFD622F3D138 
 sudo apt update
 ```
 If you cannot get a good compose version with your dist, please follow [the official guide](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually).<br>
-I made a small script to fetch the latest compose and buildx ([YMMV](https://www.urbandictionary.com/define.php?term=ymmv)) [update-docker-cli.sh](../addons/update-docker-cli.sh):
+I made a small script to fetch the latest compose and buildx ([YMMV](https://www.urbandictionary.com/define.php?term=ymmv)) [update-docker-cli.sh](../update-docker-cli.sh):
 ```shell
 wget https://github.com/kng/satnogs-client-docker/raw/main/addons/update-docker-cli.sh
 chmod 0755 update-docker-cli.sh

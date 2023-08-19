@@ -11,4 +11,3 @@ To build the addons on top of that, run `./build-addons.sh`<br>
 These will build and tag the images `librespace/satnogs-client:sa2kng` and `librespace/satnogs-client:sa2kng-addons` respectively.
 
 To use these, refer to the main [LSF-GUIDE](../lsf/LSF-GUIDE.md). Change the image tag under `satnogs_client:` service in the `docker-compose.yml`.
-

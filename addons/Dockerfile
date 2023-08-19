@@ -1,14 +1,15 @@
-FROM knegge/satnogs-client:latest AS builder
+ARG SATNOGS_IMAGE_TAG=master
+FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG} AS builder
 WORKDIR /
 USER root
 
 # install build env and required libs etc
-RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev libusb-1.0-0-dev libsoapysdr-dev libpng-dev libsndfile-dev fakeroot psmisc ninja-build autoconf automake libtool patch librtlsdr-dev
+RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev libusb-1.0-0-dev libsoapysdr-dev libpng-dev libsndfile-dev fakeroot psmisc ninja-build autoconf automake libtool patch librtlsdr-dev git jq libssl-dev libglib2.0-dev
 
 # install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
 
-# install gr-satellites
+# install gr-satellites, this is now included in the base image
 #RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/gr-satellites.git
 #RUN cd gr-satellites &&\
 #    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr &&\
@@ -86,21 +87,56 @@ RUN cd rx_tools &&\
 RUN git clone --depth=1 https://github.com/cbassa/strf.git
 RUN cd strf && make rffft && cp rffft /target/usr/bin
 
-# test run flowgraph with current settings
-COPY test-flowgraph.sh \
-     wf2png.py \
-     liveupdate-satyaml.sh \
-     uhd_images_downloader.py \
-     satnogs-post \
-     satnogs-pre \
-     iq_dump_rename.sh \
-     bandscan.sh \
-     /target/usr/bin/
-COPY --chown=satnogs:satnogs sat.cfg /target/var/lib/satnogs/.gr_satellites/sat.cfg
+# Meteor-M2 series demodulator
+RUN git clone --depth=1 https://github.com/dbdexter-dev/meteor_demod.git
+RUN cd meteor_demod &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# Meteor-M series LRPT decoder
+RUN git clone --depth=1 https://github.com/dbdexter-dev/meteor_decode.git
+RUN cd meteor_decode &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# libgpredict
+RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
+RUN cd libgpredict &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# rust build
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustinstall.sh
+RUN sh ./rustinstall.sh -y --default-toolchain nightly
+
+# satnogs-monitor
+RUN git clone --depth=1 https://github.com/wose/satnogs-monitor.git
+RUN cd satnogs-monitor/monitor &&\
+    . "$HOME/.cargo/env" &&\
+    cargo update &&\
+    cargo build --release --out-dir /target/usr/bin -Z unstable-options
+
+# URESAT-1 decoder
+RUN git clone --depth=1 https://github.com/AMSAT-EA/URESAT-1-decoder.git
+RUN cd URESAT-1-decoder/bit-version/linux &&\
+    make &&\
+    install -m 755 uresat-decoder-linux-x86 /target/usr/bin
+
+# UDP client for programs that require data on stdin
+COPY udp2ishort.grc /
+RUN grcc /udp2ishort.grc -o /target/usr/bin/
+
+COPY scripts/* /target/usr/bin/
+COPY --chown=satnogs-client:satnogs-client direwolf.conf /target/etc/
+COPY --chown=satnogs-client:satnogs-client sat.cfg /target/var/lib/satnogs-client/.gr_satellites/sat.cfg
+# Don't rely on repository file permissions, COPY --chmod requires BuildKit
+RUN chmod 0755 /target/usr/bin/*
 
 ENTRYPOINT []
 CMD ["bash"]
 
-FROM knegge/satnogs-client:latest
+FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG}
 COPY --from=builder /target /
 
+RUN apt update && apt install -y git jq direwolf netcat-openbsd && rm -rf /var/lib/apt/lists/*
+RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
