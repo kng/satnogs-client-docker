@@ -4,7 +4,10 @@ WORKDIR /
 USER root
 
 # install build env and required libs etc
-RUN apt update && apt install -y swig feh cmake build-essential gnuradio-dev libusb-1.0-0-dev libsoapysdr-dev libpng-dev libsndfile-dev fakeroot psmisc ninja-build autoconf automake libtool patch librtlsdr-dev git jq libssl-dev libglib2.0-dev
+COPY packages.builder .
+RUN apt -y update && \
+    apt -y upgrade && \
+    xargs -a packages.builder apt install -qy
 
 # install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
@@ -138,5 +141,12 @@ CMD ["bash"]
 FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG}
 COPY --from=builder /target /
 
-RUN apt update && apt install -y git jq direwolf netcat-openbsd && rm -rf /var/lib/apt/lists/*
+COPY packages.client .
+RUN apt -y update && \
+    apt -y upgrade && \
+    xargs -a packages.client apt install -qy && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
+ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
+WORKDIR $SATNOGS_CLIENT_VARSTATEDIR
