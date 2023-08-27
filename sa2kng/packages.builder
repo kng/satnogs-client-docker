@@ -24,6 +24,7 @@ liborc-0.4-dev
 liborc-0.4-dev-bin
 libpng++-dev
 libsoapysdr-dev
+libusb-1.0-0-dev
 libvorbis-dev
 nlohmann-json3-dev
 pkg-config
