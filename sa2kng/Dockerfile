@@ -23,7 +23,8 @@ ARG CLIENT_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-client.gi
 ARG CLIENT_BRANCH=master
 ARG CLIENT_VER=1.8.1
 ARG RTLSDR_URL=
-ARG RTLSDR_BRANCH=
+ARG RTLSDR_BRANCH=master
+ARG RTLSDR_VER=0.6.0-3satnogs1
 
 RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
 RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"
@@ -31,10 +32,9 @@ RUN git clone --depth 1 --branch "$GRSOAPY_BRANCH" "$GRSOAPY_URL"
 RUN git clone --depth 1 --branch "$CLIENT_BRANCH" "$CLIENT_URL"
 
 RUN if [ -n "$RTLSDR_URL" ]; then \
-        if [ -z "$RTLSDR_BRANCH" ]; then RTLSDR_BRANCH="master"; fi ;\
         git clone --depth 1 --branch "$RTLSDR_BRANCH" "$RTLSDR_URL" rtl-sdr && \
         cd rtl-sdr && \
-        dch -m --distribution unstable --local .0-4sa2kng Upstream master && \
+        dch -m --distribution unstable -v $RTLSDR_VER Upstream master && \
         DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
         dpkg -i ../rtl-sdr_*.deb ../librtlsdr0_*.deb ;\
     fi
