@@ -8,6 +8,6 @@ The current list of repos is set in [build.sh](build.sh) and consists of gr-satn
 ## Building
 To build the image, run: `./build.sh`<br>
 To build the addons on top of that, run `./build-addons.sh`<br>
-These will build and tag the images `librespace/satnogs-client:sa2kng` and `librespace/satnogs-client:sa2kng-addons` respectively.
+These will build and tag the images `knegge/satnogs-client:sa2kng` and `knegge/satnogs-client:sa2kng-addons` respectively, this can be changed in the build scripts.
 
 To use these, refer to the main [LSF-GUIDE](../lsf/LSF-GUIDE.md). Change the image tag under `satnogs_client:` service in the `docker-compose.yml`.
