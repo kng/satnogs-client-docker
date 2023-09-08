@@ -1,4 +1,5 @@
 #!/bin/bash
+if [ "${BANDSCAN_ENABLE^^}" != "YES" ]; then exit 0; fi
 # exit if pipeline fails or unset variables
 set -eu
 # default values
@@ -24,7 +25,7 @@ else
   CHANNELS="100" # S-BAND
 fi
 
-if [ "${1^^}" == "START" ] && [ "${BANDSCAN_ENABLE^^}" == "YES" ]; then
+if [ "${1^^}" == "START" ]; then
     echo "Starting bandscan at $BANDSCAN_FREQ"
     DAY=$(date -Idate)
     SAVEDIR="$BANDSCAN_DIR/$BANDSCAN_FREQ/$DAY"

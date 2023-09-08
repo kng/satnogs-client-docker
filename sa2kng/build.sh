@@ -21,4 +21,7 @@ ARGS="
     --build-arg RTLSDR_VER=0.6.0+2+${TAG} \
 "
 
-docker build -t ${REPO_ROOT}/satnogs-client:${TAG} ${ARGS} .
+docker build \
+    -t ${REPO_ROOT}/satnogs-client:${TAG} \
+    ${ARGS} \
+    .

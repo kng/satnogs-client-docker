@@ -8,4 +8,7 @@ ARGS="
     --build-arg REPO_ROOT=${REPO_ROOT} \
 "
 
-docker build -t ${REPO_ROOT}/satnogs-client:${TAG} ${ARGS} ../addons
+docker build \
+    -t ${REPO_ROOT}/satnogs-client:${TAG} \
+    ${ARGS} \
+    ../addons
