@@ -1,6 +1,15 @@
 ARG GNURADIO_IMAGE_TAG=satnogs
 FROM librespace/gnuradio:${GNURADIO_IMAGE_TAG} as builder
 
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+WORKDIR /usr/local/src/
+COPY packages.builder .
+RUN apt -y update && \
+    apt -y upgrade && \
+    xargs -a packages.builder apt install --no-install-recommends -qy
+
 ARG GRSATNOGS_URL=https://gitlab.com/librespacefoundation/satnogs/gr-satnogs.git
 ARG GRSATNOGS_BRANCH=master
 ARG GRSATNOGS_VER=2.3.4.0-1
@@ -13,35 +22,36 @@ ARG GRSOAPY_VER=2.1.3.1-1
 ARG CLIENT_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-client.git
 ARG CLIENT_BRANCH=master
 ARG CLIENT_VER=1.8.1
+ARG RTLSDR_URL=
+ARG RTLSDR_BRANCH=
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Etc/UTC
+RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
+RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"
+RUN git clone --depth 1 --branch "$GRSOAPY_BRANCH" "$GRSOAPY_URL"
+RUN git clone --depth 1 --branch "$CLIENT_BRANCH" "$CLIENT_URL"
 
-WORKDIR /usr/local/src/
-COPY packages.builder .
-RUN apt -y update && \
-    apt -y upgrade && \
-    xargs -a packages.builder apt install --no-install-recommends -qy 
-
-RUN git clone --depth 1 --branch $GRSATNOGS_BRANCH $GRSATNOGS_URL
-RUN git clone --depth 1 --branch $FLOWGRAPHS_BRANCH $FLOWGRAPHS_URL
-RUN git clone --depth 1 --branch $GRSOAPY_BRANCH $GRSOAPY_URL
-RUN git clone --depth 1 --branch $CLIENT_BRANCH $CLIENT_URL
+RUN if [ -n "$RTLSDR_URL" ]; then \
+        if [ -z "$RTLSDR_BRANCH" ]; then RTLSDR_BRANCH="master"; fi ;\
+        git clone --depth 1 --branch "$RTLSDR_BRANCH" "$RTLSDR_URL" rtl-sdr && \
+        cd rtl-sdr && \
+        DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
+        dpkg -i ../rtl-sdr_*.deb ../librtlsdr0_*.deb ;\
+    fi
 
 RUN cd gr-soapy && \
     sed -i "s/0.0-1/$GRSOAPY_VER/g" debian/changelog && \
-    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc
-RUN dpkg -i gr-soapy_*.deb libgnuradio-soapy_*.deb
+    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
+    dpkg -i ../gr-soapy_*.deb ../libgnuradio-soapy_*.deb
 
 RUN cd gr-satnogs && \
     sed -i "s/0.0-1/$GRSATNOGS_VER/g" debian/changelog && \
-    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc
-RUN dpkg -i gr-satnogs_*.deb libgnuradio-satnogs_*.deb
+    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
+    dpkg -i ../gr-satnogs_*.deb ../libgnuradio-satnogs_*.deb
 
 RUN cd satnogs-flowgraphs && \
     sed -i "s/0.0-1/$FLOWGRAPHS_VER/g" debian/changelog && \
-    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc
-RUN dpkg -i satnogs-flowgraphs_*.deb
+    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
+    dpkg -i ../satnogs-flowgraphs_*.deb
 
 RUN --mount=type=cache,id=debs,target=/debs \
     mkdir -p /debs/$(dpkg --print-architecture)/ && \

@@ -1,5 +1,6 @@
 ARG SATNOGS_IMAGE_TAG=master
-FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG} AS builder
+ARG REPO_ROOT=librespace
+FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} AS builder
 WORKDIR /
 USER root
 
@@ -137,7 +138,7 @@ RUN chmod 0755 /target/usr/bin/*
 ENTRYPOINT []
 CMD ["bash"]
 
-FROM librespace/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
+FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
 COPY --from=builder /target /
 
 COPY packages.client .
@@ -148,3 +149,4 @@ RUN apt -y update && \
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
 WORKDIR $SATNOGS_CLIENT_VARSTATEDIR
+
