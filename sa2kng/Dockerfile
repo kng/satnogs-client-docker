@@ -34,22 +34,23 @@ RUN if [ -n "$RTLSDR_URL" ]; then \
         if [ -z "$RTLSDR_BRANCH" ]; then RTLSDR_BRANCH="master"; fi ;\
         git clone --depth 1 --branch "$RTLSDR_BRANCH" "$RTLSDR_URL" rtl-sdr && \
         cd rtl-sdr && \
+        dch -m --distribution unstable --local .0-4sa2kng Upstream master && \
         DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
         dpkg -i ../rtl-sdr_*.deb ../librtlsdr0_*.deb ;\
     fi
 
 RUN cd gr-soapy && \
-    sed -i "s/0.0-1/$GRSOAPY_VER/g" debian/changelog && \
+    dch -m --distribution unstable -v $GRSOAPY_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../gr-soapy_*.deb ../libgnuradio-soapy_*.deb
 
 RUN cd gr-satnogs && \
-    sed -i "s/0.0-1/$GRSATNOGS_VER/g" debian/changelog && \
+    dch -m --distribution unstable -v $GRSATNOGS_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../gr-satnogs_*.deb ../libgnuradio-satnogs_*.deb
 
 RUN cd satnogs-flowgraphs && \
-    sed -i "s/0.0-1/$FLOWGRAPHS_VER/g" debian/changelog && \
+    dch -m --distribution unstable -v $FLOWGRAPHS_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../satnogs-flowgraphs_*.deb
 

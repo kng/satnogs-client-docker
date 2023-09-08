@@ -1,6 +1,7 @@
 build-essential
 cmake
 debhelper
+devscripts
 dh-python
 doxygen
 gfortran
