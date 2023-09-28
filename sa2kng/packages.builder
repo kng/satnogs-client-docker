@@ -16,6 +16,7 @@ libboost-system-dev
 libboost-test-dev
 libboost-thread-dev
 libconfig++-dev
+libdistro-info-perl
 libfreetype6-dev
 libgmp-dev
 libhdf5-103

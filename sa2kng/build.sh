@@ -16,7 +16,7 @@ ARGS="
     --build-arg FLOWGRAPHS_VER=1.5+2+${TAG} \
     --build-arg CLIENT_URL=https://gitlab.com/knegge/satnogs-client.git \
     --build-arg CLIENT_BRANCH=${TAG} \
-    --build-arg RTLSDR_URL=https://github.com/rtlsdrblog/rtl-sdr-blog.git \
+    --build-arg RTLSDR_URL=https://github.com/osmocom/rtl-sdr.git \
     --build-arg RTLSDR_BRANCH=master \
     --build-arg RTLSDR_VER=0.6.0+2+${TAG} \
 "

@@ -1,8 +1,9 @@
 #!/bin/bash
 set -eu
 DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-BUILDX_VER=$(git ls-remote --sort -v:refname --tags https://github.com/docker/buildx.git|head -n 1|sed 's/^.*tags\///g')
-COMPOSE_VER=$(git ls-remote --sort -v:refname --tags https://github.com/docker/compose.git|head -n 1|sed 's/^.*tags\///g')
+BUILDX_VER=$(git ls-remote --sort -v:refname --tags https://github.com/docker/buildx.git|head -n 1|sed 's/^.*tags\///g'|sed 's/[^[:alnum:]+._-]//g')
+COMPOSE_VER=$(git ls-remote --sort -v:refname --tags https://github.com/docker/compose.git|head -n 1|sed 's/^.*tags\///g'|sed 's/[^[:alnum:]+._-]//g')
+
 
 case $(dpkg --print-architecture) in
 arm64)

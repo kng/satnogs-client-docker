@@ -3,3 +3,4 @@ git
 jq
 netcat-openbsd
 python3-psutil
+soapyremote-server

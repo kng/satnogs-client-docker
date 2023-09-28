@@ -1,7 +1,7 @@
 ARG SATNOGS_IMAGE_TAG=master
 ARG REPO_ROOT=librespace
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} AS builder
-WORKDIR /
+WORKDIR /usr/src
 USER root
 
 # install build env and required libs etc
@@ -126,8 +126,8 @@ RUN cd URESAT-1-decoder/bit-version/linux &&\
     install -m 755 uresat-decoder-linux-x86 /target/usr/bin
 
 # UDP client for programs that require data on stdin
-COPY udp2ishort.grc /
-RUN grcc /udp2ishort.grc -o /target/usr/bin/
+COPY udp2ishort.grc .
+RUN grcc udp2ishort.grc -o /target/usr/bin/
 
 COPY scripts/* /target/usr/bin/
 COPY --chown=satnogs-client:satnogs-client direwolf.conf /target/etc/
@@ -141,6 +141,7 @@ CMD ["bash"]
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
 COPY --from=builder /target /
 
+WORKDIR /usr/src
 COPY packages.client .
 RUN apt -y update && \
     xargs -a packages.client apt install -qy && \
