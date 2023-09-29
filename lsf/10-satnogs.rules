@@ -1,0 +1,161 @@
+# Airspy HF and Airspy
+SUBSYSTEMS=="usb", ATTR{idVendor}=="03eb", ATTR{idProduct}=="800c", MODE="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="60a1", MODE="0660", GROUP="plugdev"
+
+# Funcube Dongle
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="fb31", MODE="0660", GROUP="plugdev"
+
+# HackRF Jawbreaker, One and rad1o
+SUBSYSTEMS=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="604b", MODE="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6089", MODE="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="cc15", MODE="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTR{idVendor}=="1fc9", ATTR{idProduct}=="000c", MODE="0660", GROUP="plugdev"
+KERNEL=="sd?", SUBSYSTEM=="block", ENV{ID_VENDOR_ID}=="1fc9", ENV{ID_MODEL_ID}=="0042", MODE="0660", GROUP="plugdev"
+KERNEL=="sd?", SUBSYSTEM=="block", ENV{ID_VENDOR_ID}=="1fc9", ENV{ID_MODEL_ID}=="0082", MODE="0660", GROUP="plugdev"
+
+# original RTL2832U vid/pid (hama nano, for example)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE:="0660", GROUP="plugdev"
+
+# RTL2832U OEM vid/pid, e.g. ezcap EzTV668 (E4000), Newsky TV28T (E4000/R820T) etc.
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE:="0660", GROUP="plugdev"
+
+# DigitalNow Quad DVB-T PCI-E card (4x FC0012?)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0413", ATTRS{idProduct}=="6680", MODE:="0660", GROUP="plugdev"
+
+# Leadtek WinFast DTV Dongle mini D (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0413", ATTRS{idProduct}=="6f0f", MODE:="0660", GROUP="plugdev"
+
+# Genius TVGo DVB-T03 USB dongle (Ver. B)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0458", ATTRS{idProduct}=="707f", MODE:="0660", GROUP="plugdev"
+
+# Terratec Cinergy T Stick Black (rev 1) (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00a9", MODE:="0660", GROUP="plugdev"
+
+# Terratec NOXON rev 1 (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b3", MODE:="0660", GROUP="plugdev"
+
+# Terratec Deutschlandradio DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b4", MODE:="0660", GROUP="plugdev"
+
+# Terratec NOXON DAB Stick - Radio Energy (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b5", MODE:="0660", GROUP="plugdev"
+
+# Terratec Media Broadcast DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b7", MODE:="0660", GROUP="plugdev"
+
+# Terratec BR DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b8", MODE:="0660", GROUP="plugdev"
+
+# Terratec WDR DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00b9", MODE:="0660", GROUP="plugdev"
+
+# Terratec MuellerVerlag DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00c0", MODE:="0660", GROUP="plugdev"
+
+# Terratec Fraunhofer DAB Stick (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00c6", MODE:="0660", GROUP="plugdev"
+
+# Terratec Cinergy T Stick RC (Rev.3) (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00d3", MODE:="0660", GROUP="plugdev"
+
+# Terratec T Stick PLUS (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00d7", MODE:="0660", GROUP="plugdev"
+
+# Terratec NOXON rev 2 (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0ccd", ATTRS{idProduct}=="00e0", MODE:="0660", GROUP="plugdev"
+
+# PixelView PV-DT235U(RN) (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1554", ATTRS{idProduct}=="5020", MODE:="0660", GROUP="plugdev"
+
+# Astrometa DVB-T/DVB-T2 (R828D)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="15f4", ATTRS{idProduct}=="0131", MODE:="0660", GROUP="plugdev"
+
+# HanfTek DAB+FM+DVB-T
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="15f4", ATTRS{idProduct}=="0133", MODE:="0660", GROUP="plugdev"
+
+# Compro Videomate U620F (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="185b", ATTRS{idProduct}=="0620", MODE:="0660", GROUP="plugdev"
+
+# Compro Videomate U650F (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="185b", ATTRS{idProduct}=="0650", MODE:="0660", GROUP="plugdev"
+
+# Compro Videomate U680F (E4000)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="185b", ATTRS{idProduct}=="0680", MODE:="0660", GROUP="plugdev"
+
+# GIGABYTE GT-U7300 (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d393", MODE:="0660" , GROUP="plugdev"
+
+# DIKOM USB-DVBT HD
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d394", MODE:="0660", GROUP="plugdev"
+
+# Peak 102569AGPK (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d395", MODE:="0660", GROUP="plugdev"
+
+# KWorld KW-UB450-T USB DVB-T Pico TV (TUA9001)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d397", MODE:="0660", GROUP="plugdev"
+
+# Zaapa ZT-MINDVBZP (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d398", MODE:="0660", GROUP="plugdev"
+
+# SVEON STV20 DVB-T USB & FM (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d39d", MODE:="0660", GROUP="plugdev"
+
+# Twintech UT-40 (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d3a4", MODE:="0660", GROUP="plugdev"
+
+# ASUS U3100MINI_PLUS_V2 (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d3a8", MODE:="0660", GROUP="plugdev"
+
+# SVEON STV27 DVB-T USB & FM (FC0013)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d3af", MODE:="0660", GROUP="plugdev"
+
+# SVEON STV21 DVB-T USB & FM
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b80", ATTRS{idProduct}=="d3b0", MODE:="0660", GROUP="plugdev"
+
+# Dexatek DK DVB-T Dongle (Logilink VG0002A) (FC2580)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1d19", ATTRS{idProduct}=="1101", MODE:="0660", GROUP="plugdev"
+
+# Dexatek DK DVB-T Dongle (MSI DigiVox mini II V3.0)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1d19", ATTRS{idProduct}=="1102", MODE:="0660", GROUP="plugdev"
+
+# Dexatek DK 5217 DVB-T Dongle (FC2580)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1d19", ATTRS{idProduct}=="1103", MODE:="0660", GROUP="plugdev"
+
+# MSI DigiVox Micro HD (FC2580)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1d19", ATTRS{idProduct}=="1104", MODE:="0660", GROUP="plugdev"
+
+# Sweex DVB-T USB (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f4d", ATTRS{idProduct}=="a803", MODE:="0660", GROUP="plugdev"
+
+# GTek T803 (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f4d", ATTRS{idProduct}=="b803", MODE:="0660", GROUP="plugdev"
+
+# Lifeview LV5TDeluxe (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f4d", ATTRS{idProduct}=="c803", MODE:="0660", GROUP="plugdev"
+
+# MyGica TD312 (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f4d", ATTRS{idProduct}=="d286", MODE:="0660", GROUP="plugdev"
+
+# PROlectrix DV107669 (FC0012)
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f4d", ATTRS{idProduct}=="d803", MODE:="0660", GROUP="plugdev"
+
+# SDRPlay
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="2500", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3000", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3010", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3020", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3030", MODE:="0660", GROUP="plugdev"
+
+# USRP1, B100 and B200
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="fffe", ATTRS{idProduct}=="0002", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0002", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0020", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0021", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0022", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7813", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7814", MODE:="0660", GROUP="plugdev"
+
+# AFEDRI SDR
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="255d", ATTRS{idProduct}=="0006", MODE="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="255d", ATTRS{idProduct}=="0002", MODE="0660", GROUP="plugdev"
+
