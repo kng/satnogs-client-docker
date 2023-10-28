@@ -34,6 +34,17 @@ echo "blacklist dvb_usb_rtl28xxu" | sudo tee /etc/modprobe.d/blacklist-rtlsdr.co
 sudo modprobe -r dvb_usb_rtl28xxu
 ```
 
+### udev rules and module blacklist
+An alternative to installing supporting driver on the host, there is two files that can be installed on the host instead.
+The two main concepts of sdr driver packages are the udev rules and module blacklist, here we have compiled these to suit our needs.
+Basically just copy the [10-satnogs.rules](10-satnogs.rules) to `/etc/udev/rules.d/` and [satnogs-blacklist.conf](satnogs-blacklist.conf) to `/etc/modprobe.d/`
+```
+sudo cp 10-satnogs.rules /etc/udev/rules.d/
+sudo cp atnogs-blacklist.conf /etc/modprobe.d/
+```
+Reboot is the simplest way to apply these, manually doing `rmmod` and `udevadm control --reload-rules && udevadm trigger` also possible.
+
+### Docker install
 See the [docker installation](#install-dockerio) at the bottom of this page.
 
 ## Configuration
