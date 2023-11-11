@@ -159,3 +159,10 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7814", MODE:="066
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="255d", ATTRS{idProduct}=="0006", MODE="0660", GROUP="plugdev"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="255d", ATTRS{idProduct}=="0002", MODE="0660", GROUP="plugdev"
 
+# LimeSDR
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="8613", MODE="0660", GROUP="plugdev", SYMLINK+="stream-%k"
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="00f1", MODE="0660", GROUP="plugdev", SYMLINK+="stream-%k"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="601f", MODE="0660", GROUP="plugdev", SYMLINK+="stream-%k"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6108", MODE="0660", GROUP="plugdev", SYMLINK+="stream-%k"
+SUBSYSTEM=="xillybus", MODE="0660", GROUP="plugdev"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0660", GROUP="plugdev"
