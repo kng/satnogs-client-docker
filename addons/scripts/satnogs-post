@@ -6,3 +6,4 @@ meteor.sh stop "$@"
 iq_dump_rename.sh "$@"
 bandscan.sh start
 direwolf.sh start
+# rotor-park.sh
