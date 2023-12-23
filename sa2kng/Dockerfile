@@ -22,9 +22,10 @@ ARG GRSOAPY_VER=2.1.3.1-1
 ARG CLIENT_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-client.git
 ARG CLIENT_BRANCH=master
 ARG CLIENT_VER=1.8.1
-ARG RTLSDR_URL=
+ARG RTLSDR_URL
 ARG RTLSDR_BRANCH=master
 ARG RTLSDR_VER=0.6.0-3satnogs1
+ARG UHD_URL
 
 RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
 RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"
@@ -34,25 +35,34 @@ RUN git clone --depth 1 --branch "$CLIENT_BRANCH" "$CLIENT_URL"
 RUN if [ -n "$RTLSDR_URL" ]; then \
         git clone --depth 1 --branch "$RTLSDR_BRANCH" "$RTLSDR_URL" rtl-sdr && \
         cd rtl-sdr && \
-        dch -m --distribution unstable -v $RTLSDR_VER Upstream master && \
+        dch -m -b --distribution unstable -v $RTLSDR_VER Upstream master && \
         DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
         dpkg -i ../rtl-sdr_*.deb ../librtlsdr0_*.deb ;\
     fi
 
 RUN cd gr-soapy && \
-    dch -m --distribution unstable -v $GRSOAPY_VER Upstream master && \
+    dch -m -b --distribution unstable -v $GRSOAPY_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../gr-soapy_*.deb ../libgnuradio-soapy_*.deb
 
 RUN cd gr-satnogs && \
-    dch -m --distribution unstable -v $GRSATNOGS_VER Upstream master && \
+    dch -m -b --distribution unstable -v $GRSATNOGS_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../gr-satnogs_*.deb ../libgnuradio-satnogs_*.deb
 
 RUN cd satnogs-flowgraphs && \
-    dch -m --distribution unstable -v $FLOWGRAPHS_VER Upstream master && \
+    dch -m -b --distribution unstable -v $FLOWGRAPHS_VER Upstream master && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../satnogs-flowgraphs_*.deb
+
+RUN if [ -n "$UHD_URL" ]; then \
+      dget -q -u "$UHD_URL" &&\
+      cd uhd-* &&\
+      DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc --build=binary &&\
+      cd .. &&\
+      rm -f libuhd*dpdk* libuhd-dev* uhd-doc* &&\
+      dpkg -i uhd-host_*.deb libuhd*.deb ;\
+    fi
 
 RUN --mount=type=cache,id=debs,target=/debs \
     mkdir -p /debs/$(dpkg --print-architecture)/ && \
@@ -81,6 +91,7 @@ ENV TZ=Etc/UTC
 ARG MPLSETUPCFG=/etc/mplsetup.cfg
 COPY --from=builder $MPLSETUPCFG $MPLSETUPCFG
 
+# Install deb packages from builder
 COPY packages.client /usr/local/src/
 RUN --mount=type=cache,id=debs,target=/debs \
     apt -y update && \
@@ -88,6 +99,10 @@ RUN --mount=type=cache,id=debs,target=/debs \
     xargs -a /usr/local/src/packages.client apt install -qy python3-pip && \
     apt install -qy --allow-downgrades /debs/$(dpkg --print-architecture)/*.deb && \
     rm -rf /var/lib/apt/lists/*
+
+# Install python packages from builder
+RUN --mount=type=cache,id=wheels,target=/wheels \
+    pip3 install --no-cache --find-links=/wheels --no-index satnogs-client
 
 ARG SATNOGS_CLIENT_UID=999
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
@@ -104,9 +119,10 @@ RUN groupadd -r -g ${SATNOGS_CLIENT_UID} satnogs-client \
 # Create application varstate directory
 RUN install -d -o ${SATNOGS_CLIENT_UID} -g ${SATNOGS_CLIENT_UID} ${SATNOGS_CLIENT_VARSTATEDIR}
 
-# Install python packages from builder
-RUN --mount=type=cache,id=wheels,target=/wheels \
-    pip3 install --no-cache --find-links=/wheels --no-index satnogs-client
+ARG UHD_URL
+RUN if [ -n "$UHD_URL" ]; then \
+        uhd_images_downloader -q ;\
+    fi
 
 WORKDIR $SATNOGS_CLIENT_VARSTATEDIR
 

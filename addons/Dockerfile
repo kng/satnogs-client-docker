@@ -147,6 +147,9 @@ RUN apt -y update && \
     xargs -a packages.client apt install -qy && \
     rm -rf /var/lib/apt/lists/*
 
+COPY packages.pip .
+RUN xargs -a packages.pip pip install
+
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
 WORKDIR $SATNOGS_CLIENT_VARSTATEDIR
