@@ -3,6 +3,6 @@
 
 bandscan.sh stop
 direwolf.sh stop
-grsat-wrapper.sh start "$@"
+grsat.py start "$@"
 meteor.sh start "$@"
 # gpio.py -f "${2}"
