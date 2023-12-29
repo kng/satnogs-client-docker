@@ -29,10 +29,10 @@ RUN git clone --depth=1 https://github.com/daniestevez/ssdv.git
 RUN cd ssdv &&\
     make DESTDIR=/target install
 
-# install satnogs_gr-satellites
-RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
-RUN cd satnogs_gr-satellites &&\
-    make DESTDIR=/target PREFIX=/usr install
+# install satnogs_gr-satellites, moved to grsat.py
+#RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
+#RUN cd satnogs_gr-satellites &&\
+#    make DESTDIR=/target PREFIX=/usr install
 
 # install mirisdr
 RUN git clone https://github.com/ericek111/libmirisdr-5.git
@@ -126,6 +126,7 @@ RUN cd URESAT-1-decoder/bit-version/linux &&\
     install -m 755 uresat-decoder-linux-x86 /target/usr/bin
 
 # UDP client for programs that require data on stdin
+COPY udp.conf /target/etc/gnuradio/conf.d/
 COPY udp2ishort.grc .
 RUN grcc udp2ishort.grc -o /target/usr/bin/
 
