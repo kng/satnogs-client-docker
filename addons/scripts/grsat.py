@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from json import loads, dump
 from os import getenv, unlink, kill, path
 from struct import unpack
-from subprocess import Popen
+from subprocess import Popen, DEVNULL
 from sys import argv
 
 LOG_FORMAT = '%(name)s - %(levelname)s - %(message)s'
@@ -23,7 +23,7 @@ class GrSat(object):
         self.tle = loads(av[3])
         self.timestamp = av[4]
         try:
-            self.baud = float(av[5])
+            self.baud = int(float(av[5]))
         except ValueError:
             self.baud = 0
         self.script_name = av[6]
@@ -56,7 +56,7 @@ class GrSat(object):
 
         LOGGER.debug(' '.join(gr_app))
         try:
-            s = Popen(gr_app)
+            s = Popen(gr_app, stdout=DEVNULL, stderr=DEVNULL)
             with open(self.pid_file, 'w') as pf:
                 pf.write(str(s.pid))
         except (FileNotFoundError, TypeError):
@@ -89,6 +89,7 @@ class GrSat(object):
         with open(self.kiss_file, 'rb') as kf:
             LOGGER.info('Processing kiss file')
             dp = f"{self.data}/data_{str(self.obs_id)}_"
+            num_frames = 0
             for ts, frame in self.parse_kiss_file(kf):
                 if len(frame) == 0:
                     continue
@@ -103,10 +104,12 @@ class GrSat(object):
                 data = {'decoder_name': 'gr-satellites', 'pdu': b64encode(frame).decode()}
                 with open(datafile, 'w') as df:
                     dump(data, df, default=str)
+                num_frames += 1
                 LOGGER.debug(f'{datafile} len {len(frame)}')
+            LOGGER.info(f'Total frames: {num_frames}')
 
     @classmethod  # from satnogs_gr-satellites/find_samp_rate.py
-    def find_samp_rate(cls, baudrate, script, sps=4, audio_samp_rate=48e3):
+    def find_samp_rate(cls, baudrate, script='satnogs_fm.py', sps=4, audio_samp_rate=48000):
         if '_bpsk' in script:
             return cls.find_decimation(baudrate, 2, audio_samp_rate, sps) * baudrate
         elif '_fsk' in script:
