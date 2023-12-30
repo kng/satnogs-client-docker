@@ -1,6 +1,8 @@
 #!/bin/bash
-# {command} {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
+# exit if pipeline fails or unset variables
+set -eu
 
+# Launch with: {command} {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
 CMD="$1"     # $1 [start|stop]
 ID="$2"      # $2 observation ID
 #FREQ="$3"    # $3 frequency
@@ -10,18 +12,14 @@ BAUD="$6"    # $6 baudrate
 SCRIPT="$7"  # $7 script name, satnogs_bpsk.py
 
 # default values
-if [ -z "$METEOR_NORAD" ]; then
-  METEOR_NORAD="57166"
-fi
-if [ -z "$UDP_DUMP_PORT" ]; then
-  UDP_DUMP_PORT=57356
-fi
+: "${METEOR_NORAD:=57166}"
+: "${UDP_DUMP_PORT:=57356}"
+: "${SATNOGS_APP_PATH:=/tmp/.satnogs}"
+: "${SATNOGS_OUTPUT_PATH:=/tmp/.satnogs/data}"
 
 PRG="Meteor demod+decode"
-TMP="/tmp/.satnogs"
-DATA="$TMP/data"   # SATNOGS_OUTPUT_PATH
-METEOR_PID="$TMP/meteor_$SATNOGS_STATION_ID.pid"
-IMAGE="$DATA/data_${ID}_${DATE}.png"
+METEOR_PID="$SATNOGS_APP_PATH/meteor_$SATNOGS_STATION_ID.pid"
+IMAGE="$SATNOGS_OUTPUT_PATH/data_${ID}_${DATE}.png"
 SATNAME=$(echo "$TLE" | jq .tle0 | sed -e 's/ /_/g' | sed -e 's/[^A-Za-z0-9._-]//g')
 NORAD=$(echo "$TLE" | jq .tle2 | awk '{print $2}')
 

@@ -1,29 +1,22 @@
 #!/bin/bash
+# exit if pipeline fails or unset variables
+set -eu
 
 # default values
-if [ -z "$DIREWOLF_FREQ" ]; then
-    #DIREWOLF_FREQ=144390000
-    DIREWOLF_FREQ=144800000
-fi
-if [ -z "$DIREWOLF_CONF" ]; then
-    DIREWOLF_CONF=/etc/direwolf.conf
-fi
-if [ -z "$SATNOGS_PPM_ERROR" ]; then
-    SATNOGS_PPM_ERROR=0
-fi
-if [ -z "$SATNOGS_RF_GAIN" ]; then
-    SATNOGS_RF_GAIN=0
-fi
-
-SDR_BIN="rx_fm"
-DIREWOLF_BIN="direwolf"
-DIREWOLF_PID="/tmp/.satnogs/direwolf.pid"
-SAMPLERATE="48000"
+: "${DIREWOLF_FREQ:=144800000}"
+: "${DIREWOLF_CONF:=/etc/direwolf.conf}"
+: "${SATNOGS_PPM_ERROR:=0}"
+: "${SATNOGS_RF_GAIN:=0}"
+: "${SATNOGS_APP_PATH:=/tmp/.satnogs}"
+: "${SDR_BIN:=rx_fm}"
+: "${DIREWOLF_BIN:=direwolf}"
+: "${DIREWOLF_SAMPLERATE:=48000}"
+DIREWOLF_PID="$SATNOGS_APP_PATH/direwolf.pid"
 
 if [ "${1^^}" == "START" ] && [ "${DIREWOLF_ENABLE^^}" == "YES" ]; then
     echo "Starting direwolf"
-    $SDR_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -f "$DIREWOLF_FREQ" -s "$SAMPLERATE" - \
-    | $DIREWOLF_BIN -c "$DIREWOLF_CONF" -r "$SAMPLERATE" -D 1 -t 0 &
+    $SDR_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -f "$DIREWOLF_FREQ" -s "$DIREWOLF_SAMPLERATE" - \
+    | $DIREWOLF_BIN -c "$DIREWOLF_CONF" -r "$DIREWOLF_SAMPLERATE" -D 1 -t 0 &
     echo $! > "$DIREWOLF_PID"
 fi
 
