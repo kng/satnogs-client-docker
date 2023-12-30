@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "${BANDSCAN_ENABLE^^}" != "YES" ]; then exit 0; fi
+if [[ ! "${BANDSCAN_ENABLE^^}" =~ (TRUE|YES|1) ]]; then exit; fi
 # exit if pipeline fails or unset variables
 set -eu
 # default values
@@ -7,12 +7,13 @@ set -eu
 : "${BANDSCAN_SAMPLERATE:=$SATNOGS_RX_SAMP_RATE}"
 : "${BANDSCAN_DIR:=/srv/bandscan}"
 : "${SATNOGS_PPM_ERROR:=0}"
-: "${BANDSCAN_PID:=/tmp/.satnogs/bandscan.pid}"
+: "${SATNOGS_APP_PATH:=/tmp/.satnogs}"
 : "${BANDSCAN_BIN:=rx_sdr}"
 : "${BANDSCAN_OUTPUT_FORMAT:=CF32}"
 : "${BANDSCAN_INPUT_FORMAT:=float}"
 : "${SATNOGS_RF_GAIN:=0}"
 : "${SATNOGS_OTHER_SETTINGS:=0}"
+BANDSCAN_PID="$SATNOGS_APP_PATH/bandscan.pid"
 
 # if unset, try calculating channels
 if [ -n "${BANDSCAN_CHANNELS:-}" ]; then
@@ -29,7 +30,7 @@ if [ "${1^^}" == "START" ]; then
     echo "Starting bandscan at $BANDSCAN_FREQ"
     DAY=$(date -Idate)
     SAVEDIR="$BANDSCAN_DIR/$BANDSCAN_FREQ/$DAY"
-    mkdir -p "$SAVEDIR" "$(dirname "$BANDSCAN_PID")"
+    mkdir -p "$SAVEDIR" "$SATNOGS_APP_PATH"
     INDEX=$(find "$SAVEDIR" -mindepth 1 -maxdepth 1 -type f | wc -l)
     $BANDSCAN_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" \
                   -a "$SATNOGS_ANTENNA" \
