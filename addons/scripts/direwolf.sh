@@ -1,4 +1,5 @@
 #!/bin/bash
+if [[ ! "${DIREWOLF_ENABLE^^}" =~ (TRUE|YES|1) ]]; then exit; fi
 # exit if pipeline fails or unset variables
 set -eu
 
@@ -13,7 +14,7 @@ set -eu
 : "${DIREWOLF_SAMPLERATE:=48000}"
 DIREWOLF_PID="$SATNOGS_APP_PATH/direwolf.pid"
 
-if [ "${1^^}" == "START" ] && [ "${DIREWOLF_ENABLE^^}" == "YES" ]; then
+if [ "${1^^}" == "START" ]; then
     echo "Starting direwolf"
     $SDR_BIN -d "$SATNOGS_SOAPY_RX_DEVICE" -a "$SATNOGS_ANTENNA" -p "$SATNOGS_PPM_ERROR" -g "$SATNOGS_RF_GAIN" -f "$DIREWOLF_FREQ" -s "$DIREWOLF_SAMPLERATE" - \
     | $DIREWOLF_BIN -c "$DIREWOLF_CONF" -r "$DIREWOLF_SAMPLERATE" -D 1 -t 0 &
