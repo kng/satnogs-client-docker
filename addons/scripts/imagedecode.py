@@ -2,6 +2,8 @@
 import logging
 from io import BytesIO
 from os import path, getenv
+from pathlib import Path
+from subprocess import Popen, DEVNULL
 from sys import argv
 
 logging.basicConfig(format="%(name)s - %(levelname)s - %(message)s",
@@ -24,6 +26,11 @@ class ImageDecode(object):
             self.auto_decode()
 
     def auto_decode(self):
+        # external image decoders, use return to skip internal decoders
+        if self.norad_id == 43803:
+            self.jy1sat_ssdv()
+            return
+        # internal image decoders
         self.parse_file()
         if self.norad_id in [53385,   # Geoscan-Edelveis
                              57167]:  # StratoSat TK-1
@@ -94,6 +101,16 @@ class ImageDecode(object):
         LOGGER.info(f'Writing image to: {image_file}')
         with open(image_file, "wb") as f:
             f.write(self.imagedata.getbuffer())
+
+    def jy1sat_ssdv(self):
+        LOGGER.info(f"Running jy1sat_ssdv for {self.norad_id}")
+        Popen(
+            ["jy1sat_ssdv", self.frame_file, self.image_name],
+            stdout=DEVNULL,
+            stderr=DEVNULL,
+        )
+        for f in Path(self.image_name).glob("*.ssdv"):
+            f.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

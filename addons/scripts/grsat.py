@@ -8,9 +8,14 @@ from struct import unpack
 from subprocess import Popen, DEVNULL
 from sys import argv
 
-LOG_FORMAT = '%(name)s - %(levelname)s - %(message)s'
-LOG_LEVEL = getenv('SATNOGS_LOG_LEVEL', 'WARNING')
-logging.basicConfig(format=LOG_FORMAT, level=getattr(logging, LOG_LEVEL))
+try:
+    from imagedecode import ImageDecode
+except ImportError:
+    class ImageDecode:
+        pass
+
+logging.basicConfig(format="%(name)s - %(levelname)s - %(message)s",
+                    level=getattr(logging, getenv("SATNOGS_LOG_LEVEL", "WARNING")))
 LOGGER = logging.getLogger('grsat')
 
 
@@ -35,9 +40,12 @@ class GrSat(object):
         self.kiss_file = self.tmp + '/gr_satellites.kiss'
         self.pid_file = self.tmp + '/gr_satellites.pid'
         self.norad = self.tle['tle2'].split(' ')[1]
+        self.sat_name = self.tle['tle0']  # may start with '0 ' or not
         self.samp_rate = self.find_samp_rate(self.baud, self.script_name)
 
     def worker(self):
+        LOGGER.info(f'Observation: {self.obs_id}, Norad: {self.norad}, '
+                    f'Name: {self.sat_name}, Script: {self.script_name}')
         if 'start' in self.cmd:
             self.start_gr_satellites()
         elif 'stop' in self.cmd:
@@ -73,6 +81,7 @@ class GrSat(object):
 
         if path.isfile(self.kiss_file):
             self.kiss_to_json()
+            ImageDecode(self.kiss_file, int(self.norad), f'{self.data}/data_{str(self.obs_id)}_')
             # run other scripts here
             unlink(self.kiss_file)
 
