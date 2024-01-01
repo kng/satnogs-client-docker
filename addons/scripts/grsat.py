@@ -26,26 +26,30 @@ class GrSat(object):
         self.obs_id = int(av[1])
         self.freq = int(av[2])
         self.tle = loads(av[3])
-        self.timestamp = av[4]
+        self.timestamp = datetime.strptime(av[4], '%Y-%m-%dT%H-%M-%S')
         try:
             self.baud = int(float(av[5]))
         except ValueError:
             self.baud = 0
         self.script_name = av[6]
         self.udp_port = getenv('UDP_DUMP_PORT', '57356')
+        self.udp_host = getenv('UDP_DUMP_HOST', '')
         self.tmp = getenv('SATNOGS_APP_PATH', '/tmp/.satnogs')
         self.data = getenv('SATNOGS_OUTPUT_PATH', '/tmp/.satnogs/data')
         self.zmq_port = getenv('GRSAT_ZMQ_PORT', '5555')
         self.app = getenv('GRSAT_APP', 'gr_satellites')
+        self.keep_logs = getenv('GRSAT_KEEPLOGS', 'False').lower() in ['true', '1', 'yes']
         self.kiss_file = self.tmp + '/gr_satellites.kiss'
         self.pid_file = self.tmp + '/gr_satellites.pid'
-        self.norad = self.tle['tle2'].split(' ')[1]
+        self.norad = int(self.tle['tle2'].split(' ')[1])
         self.sat_name = self.tle['tle0']  # may start with '0 ' or not
         self.samp_rate = self.find_samp_rate(self.baud, self.script_name)
 
     def worker(self):
         LOGGER.info(f'Observation: {self.obs_id}, Norad: {self.norad}, '
                     f'Name: {self.sat_name}, Script: {self.script_name}')
+        if len(self.udp_host) == 0:
+            LOGGER.warning('UDP_DUMP_HOST not set, no data will be sent to the demod')
         if 'start' in self.cmd:
             self.start_gr_satellites()
         elif 'stop' in self.cmd:
@@ -58,6 +62,7 @@ class GrSat(object):
         gr_app = [self.app, str(self.norad),
                   '--samp_rate', str(self.samp_rate),
                   '--iq', '--udp', '--udp_raw', '--udp_port', str(self.udp_port),
+                  '--start_time', self.timestamp.strftime('%Y-%m-%dT%H:%M:%S'),
                   '--kiss_out', self.kiss_file,
                   '--zmq_pub', f'tcp://0.0.0.0:{str(self.zmq_port)}',
                   '--ignore_unknown_args', '--use_agc', '--satcfg']
@@ -81,9 +86,10 @@ class GrSat(object):
 
         if path.isfile(self.kiss_file):
             self.kiss_to_json()
-            ImageDecode(self.kiss_file, int(self.norad), f'{self.data}/data_{str(self.obs_id)}_')
+            ImageDecode(self.kiss_file, self.norad, f'{self.data}/data_{str(self.obs_id)}_')
             # run other scripts here
-            unlink(self.kiss_file)
+            if not self.keep_logs:
+                unlink(self.kiss_file)
 
     @staticmethod  # from satnogs-open-flowgraph/satnogs_wrapper.py
     def parse_kiss_file(infile):
