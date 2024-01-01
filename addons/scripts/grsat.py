@@ -2,7 +2,7 @@
 import logging
 from base64 import b64encode
 from datetime import datetime, timedelta
-from json import loads, dump
+from json import loads, dump, JSONDecodeError
 from os import getenv, unlink, kill, path
 from struct import unpack
 from subprocess import Popen, DEVNULL
@@ -14,8 +14,8 @@ except ImportError:
     class ImageDecode:
         pass
 
-logging.basicConfig(format="%(name)s - %(levelname)s - %(message)s",
-                    level=getattr(logging, getenv("SATNOGS_LOG_LEVEL", "WARNING")))
+logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
+                    level=getattr(logging, getenv('SATNOGS_LOG_LEVEL', 'WARNING')))
 LOGGER = logging.getLogger('grsat')
 
 
@@ -25,12 +25,15 @@ class GrSat(object):
         self.cmd = av[0]
         self.obs_id = int(av[1])
         self.freq = int(av[2])
-        self.tle = loads(av[3])
+        try:
+            self.tle = loads(av[3])
+        except JSONDecodeError:
+            self.tle = None
         self.timestamp = datetime.strptime(av[4], '%Y-%m-%dT%H-%M-%S')
         try:
             self.baud = int(float(av[5]))
         except ValueError:
-            self.baud = 0
+            self.baud = 9600
         self.script_name = av[6]
         self.udp_port = getenv('UDP_DUMP_PORT', '57356')
         self.udp_host = getenv('UDP_DUMP_HOST', '')
@@ -41,8 +44,12 @@ class GrSat(object):
         self.keep_logs = getenv('GRSAT_KEEPLOGS', 'False').lower() in ['true', '1', 'yes']
         self.kiss_file = self.tmp + '/gr_satellites.kiss'
         self.pid_file = self.tmp + '/gr_satellites.pid'
-        self.norad = int(self.tle['tle2'].split(' ')[1])
-        self.sat_name = self.tle['tle0']  # may start with '0 ' or not
+        if self.tle is not None:
+            self.norad = int(self.tle['tle2'].split(' ')[1])
+            self.sat_name = self.tle['tle0']  # may start with '0 ' or not
+        else:
+            self.norad = 0
+            self.sat_name = ''
         self.samp_rate = self.find_samp_rate(self.baud, self.script_name)
 
     def worker(self):
