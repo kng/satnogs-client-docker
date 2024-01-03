@@ -16,9 +16,10 @@ LOGGER = logging.getLogger("imagedecode")
 
 
 class ImageDecode(object):
-    def __init__(self, frame_file=None, norad_id=0, image_file=None):
+    def __init__(self, frame_file=None, norad_id=None, image_file=None):
         self.frame_file = frame_file
         self.norad_id = norad_id
+        self.image_file = image_file
         self.frames = []
         self.imagedata = BytesIO()
         if frame_file is None:
@@ -31,20 +32,16 @@ class ImageDecode(object):
             self.image_name = image_file
             self.image_ts = datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")
         self.image_ext = ".jpg"
-        if self.norad_id > 0:
-            self.auto_decode()
+        if self.norad_id is not None:
+            self.main()
 
-    def auto_decode(self):
-        # external image decoders, use return to skip internal decoders
-        if self.norad_id == 43803:  # JY1Sat
-            self.jy1sat_ssdv()
-            return
-        # internal image decoders
-        self.parse_file()
-        if self.norad_id in [53385, 57167]:  # Geoscan-Edelveis, StratoSat TK-1
-            self.stratosat_parse_frames()
-        elif self.norad_id == 54684:  # CAS-5A
-            self.cas5a_process_images()
+    def main(self):
+        if self.norad_id in StratosatDecode.supported_norad:  # Geoscan-Edelveis, StratoSat TK-1
+            StratosatDecode(self.frame_file, self.norad_id, self.image_file)
+        elif self.norad_id in Cas5aDecode.supported_norad:  # CAS-5A
+            Cas5aDecode(self.frame_file, self.norad_id, self.image_file)
+        elif self.norad_id in ExternalDecode.supported_norad:  # JY1Sat
+            ExternalDecode(self.frame_file, self.norad_id, self.image_file)
         else:
             LOGGER.debug(f"No image decoder found for {self.norad_id}")
 
@@ -99,7 +96,24 @@ class ImageDecode(object):
                     )
                 )
 
-    def stratosat_parse_frames(self):
+    def write_image(self):
+        if self.imagedata.getbuffer().nbytes == 0:
+            LOGGER.warning(f"No image data found in {self.frame_file}")
+            return
+        image_file = f"{self.image_name}{self.image_ts}{self.image_ext}"
+        LOGGER.info(f"Writing image to: {image_file}")
+        with open(image_file, "wb") as f:
+            f.write(self.imagedata.getbuffer())
+
+
+class StratosatDecode(ImageDecode):
+    supported_norad = [53385, 57167]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        self.parse_file()
         self.imagedata.seek(0)
         self.imagedata.truncate()
         cmd_match = "0200"  # default to Stratosat TK-1, 0100 Geoscan-Edelveis
@@ -129,15 +143,23 @@ class ImageDecode(object):
                 self.imagedata.write(bytes.fromhex(payload))
         self.write_image()
 
-    def cas5a_process_images(self):
+
+class Cas5aDecode(ImageDecode):
+    supported_norad = [54684]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        self.parse_file()
         num_images = 0
-        for pid in set(self.cas5a_get_photo_ids()):
-            self.cas5a_parse_frames(pid)
+        for pid in set(self.get_photo_ids()):
+            self.parse_frames(pid)
             self.image_ext = f"_{num_images}.jpg"
             self.write_image()
             num_images += 1
 
-    def cas5a_parse_frames(self, pid):
+    def parse_frames(self, pid):
         self.imagedata.seek(0)
         self.imagedata.truncate()
         dlen = 240  # assumed maxed out frames to multiply by sequence number
@@ -154,7 +176,7 @@ class ImageDecode(object):
                 self.imagedata.seek((fseq - 1) * dlen)
                 self.imagedata.write(bytes.fromhex(row[64:flen]))
 
-    def cas5a_get_photo_ids(self):
+    def get_photo_ids(self):
         pids = set()
         for ts, row in self.frames:
             if len(row) < 32:
@@ -173,22 +195,27 @@ class ImageDecode(object):
             pids.add(row[46:64])
         return pids
 
-    def write_image(self):
-        if self.imagedata.getbuffer().nbytes == 0:
-            LOGGER.warning(f"No image data found in {self.frame_file}")
-            return
-        image_file = f"{self.image_name}{self.image_ts}{self.image_ext}"
-        LOGGER.info(f"Writing image to: {image_file}")
-        with open(image_file, "wb") as f:
-            f.write(self.imagedata.getbuffer())
+
+class ExternalDecode(ImageDecode):
+    supported_norad = [43803]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        if self.norad_id == self.supported_norad[0]:
+            self.jy1sat_ssdv()
 
     def jy1sat_ssdv(self):
-        LOGGER.info(f"Running jy1sat_ssdv for {self.norad_id}")
-        Popen(
-            ["jy1sat_ssdv", self.frame_file, self.image_name],
-            stdout=DEVNULL,
-            stderr=DEVNULL,
-        )
+        LOGGER.info(f"Running jy1sat_ssdv")
+        try:
+            Popen(
+                ["jy1sat_ssdv", self.frame_file, self.image_name],
+                stdout=DEVNULL,
+                stderr=DEVNULL,
+            )
+        except FileNotFoundError:
+            LOGGER.error(f"Did not find executable jy1sat_ssdv")
         for f in Path(self.image_name).glob("*.ssdv"):
             f.unlink(missing_ok=True)
 
