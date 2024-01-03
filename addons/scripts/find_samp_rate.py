@@ -6,16 +6,16 @@ from sys import argv
 
 
 # from satnogs_gr-satellites/find_samp_rate.py
-def find_samp_rate(baudrate, script='satnogs_fm.py', sps=4, audio_samp_rate=48000):
-    if '_bpsk' in script:
+def find_samp_rate(baudrate, script="satnogs_fm.py", sps=4, audio_samp_rate=48000):
+    if "_bpsk" in script:
         return find_decimation(baudrate, 2, audio_samp_rate, sps) * baudrate
-    elif '_fsk' in script:
+    elif "_fsk" in script:
         return max(4, find_decimation(baudrate, 2, audio_samp_rate)) * baudrate
-    elif '_sstv' in script:
+    elif "_sstv" in script:
         return 4 * 4160 * 4
-    elif '_qubik' in script:
+    elif "_qubik" in script:
         return max(4, find_decimation(baudrate, 2, audio_samp_rate)) * baudrate
-    elif '_apt' in script:
+    elif "_apt" in script:
         return 4 * 4160 * 4
     else:  # cw, fm, afsk, etc...
         return audio_samp_rate
@@ -30,11 +30,21 @@ def find_decimation(baudrate, min_decimation=4, audio_samp_rate=48e3, multiple=2
     return min_decimation
 
 
-if __name__ == '__main__':
-    if len(argv) == 2:
-        print(find_samp_rate(int(float(argv[1]))))
-    elif len(argv) == 3:
-        print(find_samp_rate(int(float(argv[1])), argv[2]))
+if __name__ == "__main__":
+    try:
+        baud_rate = int(float(argv[1]))
+    except (ValueError, IndexError):
+        baud_rate = 9600
+    try:
+        script_name = argv[2]
+    except (ValueError, IndexError):
+        script_name = "satnogs_fm.py"
+    if not 0 < baud_rate <= 10e6:
+        baud_rate = 9600
+    if len(argv) > 1:
+        print(find_samp_rate(baud_rate, script_name))
     else:
-        print(f"Usage: {argv[0]} <baudrate> [script_name]\n"
-              "From SatNOGS: {{BAUD}} {{SCRIPT_NAME}}")
+        print(
+            f"Usage: {argv[0]} <baudrate> [script_name]\n"
+            "From SatNOGS: {{BAUD}} {{SCRIPT_NAME}}"
+        )
