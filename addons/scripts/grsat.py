@@ -41,6 +41,7 @@ class GrSat(object):
         self.script_name = av[6]
         self.udp_port = getenv("UDP_DUMP_PORT", "57356")
         self.udp_host = getenv("UDP_DUMP_HOST", "")
+        self.station_id = getenv("SATNOGS_STATION_ID", "0")
         self.tmp = getenv("SATNOGS_APP_PATH", "/tmp/.satnogs")
         self.data = getenv("SATNOGS_OUTPUT_PATH", "/tmp/.satnogs/data")
         self.zmq_port = getenv("GRSAT_ZMQ_PORT", "5555")
@@ -50,8 +51,8 @@ class GrSat(object):
             "1",
             "yes",
         ]
-        self.kiss_file = self.tmp + "/gr_satellites.kiss"
-        self.pid_file = self.tmp + "/gr_satellites.pid"
+        self.kiss_file = f"{self.tmp}/grsat_{self.obs_id}.kiss"
+        self.pid_file = f"{self.tmp}/grsat_{self.station_id}.pid"
         if self.tle is not None:
             self.norad = int(self.tle["tle2"].split(" ")[1])
             self.sat_name = self.tle["tle0"]  # may start with '0 ' or not
