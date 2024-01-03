@@ -16,12 +16,15 @@ LOGGER = logging.getLogger("imagedecode")
 
 
 class ImageDecode(object):
-    def __init__(self, frame_file, norad_id=0, image_file=None):
+    def __init__(self, frame_file=None, norad_id=0, image_file=None):
         self.frame_file = frame_file
         self.norad_id = norad_id
         self.frames = []
         self.imagedata = BytesIO()
-        if image_file is None:  # default to the same basename
+        if frame_file is None:
+            self.image_name = ""
+            self.image_ts = ""
+        elif image_file is None:
             self.image_name = path.splitext(frame_file)[0]
             self.image_ts = ""
         else:
@@ -55,12 +58,27 @@ class ImageDecode(object):
 
     def parse_hex_file(self, hex_file):
         self.frames = []
-        ts = datetime.utcnow()
         for row in hex_file:
-            row = row.replace(" ", "").strip()
-            if "|" in row:  # TODO: add auto detect on format
-                row = row.split("|")[-1]
-                self.frames.append((ts, row))
+            if "|" not in row:
+                LOGGER.debug(f"Bad hex file row, missing '|' separator")
+                continue
+            data = row.split("|")
+            if len(data) == 2 or len(data) == 4:  # satnogs db export old/new
+                self.frames.append(
+                    (
+                        datetime.strptime(data[0].strip(), "%Y-%m-%d %H:%M:%S"),
+                        data[1].strip(),
+                    )
+                )
+            elif len(data) == 3:  # getkiss+
+                self.frames.append(
+                    (
+                        datetime.strptime(data[0].strip(), "%Y-%m-%d %H:%M:%S.%f"),
+                        data[2].strip(),
+                    )
+                )
+            else:
+                LOGGER.debug(f"Unknown hex line format")
 
     def parse_kiss_file(self, infile):
         self.frames = []

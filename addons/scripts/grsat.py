@@ -75,7 +75,7 @@ class GrSat(object):
             LOGGER.error("Unknown command, use start or stop")
 
     def start_gr_satellites(self):
-        LOGGER.info("Starting gr_satellites")
+        LOGGER.info(f"Starting gr_satellites at {self.samp_rate} sps")
         gr_app = [
             self.app,
             str(self.norad),
@@ -120,7 +120,7 @@ class GrSat(object):
                 self.kiss_file, self.norad, f"{self.data}/data_{str(self.obs_id)}_"
             )
             # run other scripts here
-            if not self.keep_logs:
+            if not self.keep_logs or path.getsize(self.kiss_file) == 0:
                 unlink(self.kiss_file)
 
     @staticmethod  # from satnogs-open-flowgraph/satnogs_wrapper.py
