@@ -11,34 +11,54 @@ from sys import argv
 try:
     from imagedecode import ImageDecode
 except ImportError:
+    HAS_IMAGEDECODE = False
 
     class ImageDecode:
         pass
 
+else:
+    HAS_IMAGEDECODE = True
 
 logging.basicConfig(
     format="%(name)s - %(levelname)s - %(message)s",
-    level=getattr(logging, getenv("SATNOGS_LOG_LEVEL", "WARNING")),
+    level=getattr(
+        logging, getenv("GRSAT_LOG_LEVEL", getenv("SATNOGS_LOG_LEVEL", "WARNING"))
+    ),
 )
 LOGGER = logging.getLogger("grsat")
 
 
 class GrSat(object):
-    def __init__(self, av):
-        assert len(av) == 7, "Wrong number of arguments"
-        self.cmd = av[0]
-        self.obs_id = int(av[1])
-        self.freq = int(av[2])
+    def __init__(
+        self,
+        cmd="",
+        obs_id="0",
+        freq="0",
+        tle="",
+        timestamp="",
+        baud="",
+        script="",
+    ):
+        self.cmd = cmd
         try:
-            self.tle = loads(av[3])
+            self.obs_id = int(obs_id)
+        except ValueError:
+            self.obs_id = 0
+        try:
+            self.freq = float(freq)
+        except ValueError:
+            self.freq = 0
+        try:
+            self.tle = loads(tle)
         except JSONDecodeError:
             self.tle = None
-        self.timestamp = datetime.strptime(av[4], "%Y-%m-%dT%H-%M-%S")
         try:
-            self.baud = int(float(av[5]))
+            self.timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H-%M-%S")
         except ValueError:
-            self.baud = 9600
-        self.script_name = av[6]
+            self.timestamp = datetime.utcnow()
+        self.baud = baud  # can be "None"
+        self.script_name = script
+
         self.udp_port = getenv("UDP_DUMP_PORT", "57356")
         self.udp_host = getenv("UDP_DUMP_HOST", "")
         self.station_id = getenv("SATNOGS_STATION_ID", "0")
@@ -51,7 +71,9 @@ class GrSat(object):
             "1",
             "yes",
         ]
+
         self.kiss_file = f"{self.tmp}/grsat_{self.obs_id}.kiss"
+        self.log_file = f"{self.tmp}/grsat_{self.obs_id}.log"
         self.pid_file = f"{self.tmp}/grsat_{self.station_id}.pid"
         if self.tle is not None:
             self.norad = int(self.tle["tle2"].split(" ")[1])
@@ -61,10 +83,10 @@ class GrSat(object):
             self.sat_name = ""
         self.samp_rate = self.find_samp_rate(self.baud, self.script_name)
 
-    def worker(self):
+    def main(self):
         LOGGER.info(
-            f"Observation: {self.obs_id}, Norad: {self.norad}, "
-            f"Name: {self.sat_name}, Script: {self.script_name}"
+            f"Observation: {self.obs_id}, Norad: {self.norad}, Name: {self.sat_name}, "
+            f"Script: {self.script_name}, Baud: {self.baud}, Freq: {self.freq/1e6:.3f} MHz"
         )
         if len(self.udp_host) == 0:
             LOGGER.warning("UDP_DUMP_HOST not set, no data will be sent to the demod")
@@ -100,11 +122,15 @@ class GrSat(object):
 
         LOGGER.debug(" ".join(gr_app))
         try:
-            s = Popen(gr_app, stdout=DEVNULL, stderr=DEVNULL)
+            if self.keep_logs:
+                logfile = open(self.log_file, "w")
+            else:
+                logfile = DEVNULL
+            s = Popen(gr_app, stdout=logfile, stderr=logfile)
             with open(self.pid_file, "w") as pf:
                 pf.write(str(s.pid))
-        except (FileNotFoundError, TypeError):
-            LOGGER.warning(f"Unable to launch {gr_app[0]}")
+        except (FileNotFoundError, TypeError, OSError) as e:
+            LOGGER.warning(f"Unable to launch {self.app}: {e}")
 
     def stop_gr_satellites(self):
         LOGGER.info("Stopping gr_satellites")
@@ -115,14 +141,22 @@ class GrSat(object):
         except (FileNotFoundError, ProcessLookupError, OSError):
             LOGGER.info("No gr_satellites running")
 
-        if path.isfile(self.kiss_file):
+        if path.isfile(self.kiss_file) and path.getsize(self.kiss_file) > 0:
             self.kiss_to_json()
-            ImageDecode(
-                self.kiss_file, self.norad, f"{self.data}/data_{str(self.obs_id)}_"
-            )
+            if HAS_IMAGEDECODE:
+                ImageDecode(
+                    self.kiss_file, self.norad, f"{self.data}/data_{str(self.obs_id)}_"
+                )
             # run other scripts here
-            if not self.keep_logs or path.getsize(self.kiss_file) == 0:
+            if not self.keep_logs:
                 unlink(self.kiss_file)
+        elif path.isfile(self.kiss_file):
+            unlink(self.kiss_file)
+
+        if path.isfile(self.log_file) and (
+            not self.keep_logs or path.getsize(self.log_file) == 0
+        ):
+            unlink(self.log_file)
 
     @staticmethod  # from satnogs-open-flowgraph/satnogs_wrapper.py
     def parse_kiss_file(infile):
@@ -164,9 +198,14 @@ class GrSat(object):
             LOGGER.info(f"Total frames: {num_frames}")
 
     @classmethod  # from satnogs_gr-satellites/find_samp_rate.py
-    def find_samp_rate(
-        cls, baudrate, script="satnogs_fm.py", sps=4, audio_samp_rate=48000
-    ):
+    def find_samp_rate(cls, baudrate, script="", sps=4, audio_samp_rate=48000):
+        try:
+            baudrate = int(float(baudrate))
+        except ValueError:
+            baudrate = 9600
+        if baudrate < 1:
+            baudrate = 9600
+
         if "_bpsk" in script:
             return cls.find_decimation(baudrate, 2, audio_samp_rate, sps) * baudrate
         elif "_fsk" in script:
@@ -177,6 +216,8 @@ class GrSat(object):
             return max(4, cls.find_decimation(baudrate, 2, audio_samp_rate)) * baudrate
         elif "_apt" in script:
             return 4 * 4160 * 4
+        elif "_ssb" in script:
+            return cls.find_decimation(baudrate, 2, audio_samp_rate, sps) * baudrate
         else:  # cw, fm, afsk, etc...
             return audio_samp_rate
 
@@ -196,5 +237,4 @@ if __name__ == "__main__":
             "<start|stop> {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
         )
         exit(0)
-    gr = GrSat(argv[1:])
-    gr.worker()
+    GrSat(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]).main()
