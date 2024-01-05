@@ -345,11 +345,13 @@ class ExternalDecode(ImageDecode):
 
 
 if __name__ == "__main__":
-    if len(argv) != 3:
+    LOGGER.setLevel(logging.INFO)
+    if len(argv) == 3:
+        ImageDecode(argv[1], argv[2])
+    elif len(argv) == 4:
+        ImageDecode(argv[1], argv[2], argv[3])
+    else:
         print(
-            f"Usage: {argv[0]} <frame_file> <norad_id>\n"
+            f"Usage: {argv[0]} <frame_file> <norad_id> [output_prefix]\n"
             f"Frame file can be KISS, SatNOGS data export or GetKISS+"
         )
-        exit(0)
-    LOGGER.setLevel(logging.INFO)
-    ImageDecode(argv[1], argv[2])
