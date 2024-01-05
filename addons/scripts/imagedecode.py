@@ -10,7 +10,9 @@ from sys import argv
 
 logging.basicConfig(
     format="%(name)s - %(levelname)s - %(message)s",
-    level=getattr(logging, getenv("SATNOGS_LOG_LEVEL", "WARNING")),
+    level=getattr(
+        logging, getenv("GRSAT_LOG_LEVEL", getenv("SATNOGS_LOG_LEVEL", "WARNING"))
+    ),
 )
 LOGGER = logging.getLogger("imagedecode")
 
@@ -18,7 +20,10 @@ LOGGER = logging.getLogger("imagedecode")
 class ImageDecode(object):
     def __init__(self, frame_file=None, norad_id=None, image_file=None):
         self.frame_file = frame_file
-        self.norad_id = norad_id
+        try:
+            self.norad_id = int(norad_id)
+        except (ValueError, TypeError):
+            self.norad_id = None
         self.image_file = image_file
         self.frames = []
         self.imagedata = BytesIO()
@@ -36,10 +41,16 @@ class ImageDecode(object):
             self.main()
 
     def main(self):
-        if self.norad_id in StratosatDecode.supported_norad:  # Geoscan-Edelveis, StratoSat TK-1
+        if self.norad_id in StratosatDecode.supported_norad:  # Geoscan, StratoSat
             StratosatDecode(self.frame_file, self.norad_id, self.image_file)
         elif self.norad_id in Cas5aDecode.supported_norad:  # CAS-5A
             Cas5aDecode(self.frame_file, self.norad_id, self.image_file)
+        elif self.norad_id in SirenDecode.supported_norad:  # Siren
+            SirenDecode(self.frame_file, self.norad_id, self.image_file)
+        elif self.norad_id in Lucky7Decode.supported_norad:  # Lucky-7
+            Lucky7Decode(self.frame_file, self.norad_id, self.image_file)
+        elif self.norad_id in SharjahsatDecode.supported_norad:  # Sharjahsat-1
+            SharjahsatDecode(self.frame_file, self.norad_id, self.image_file)
         elif self.norad_id in ExternalDecode.supported_norad:  # JY1Sat
             ExternalDecode(self.frame_file, self.norad_id, self.image_file)
         else:
@@ -165,7 +176,7 @@ class Cas5aDecode(ImageDecode):
         dlen = 240  # assumed maxed out frames to multiply by sequence number
         hlen = 32  # header length
         for ts, row in self.frames:
-            if len(row) < 32:
+            if len(row) < 64:
                 continue
             if pid != row[46:64] or int(row[32:34], 16) != 3:
                 continue
@@ -179,7 +190,7 @@ class Cas5aDecode(ImageDecode):
     def get_photo_ids(self):
         pids = set()
         for ts, row in self.frames:
-            if len(row) < 32:
+            if len(row) < 64:
                 continue
             if (
                 int(row[32:34], 16) != 3
@@ -194,6 +205,119 @@ class Cas5aDecode(ImageDecode):
                 continue
             pids.add(row[46:64])
         return pids
+
+
+class SirenDecode(ImageDecode):
+    supported_norad = [53384]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        self.parse_file()
+        self.imagedata.seek(0)
+        self.imagedata.truncate()
+        cmd_match = "240C"
+        offset = 0
+        for ts, row in self.frames:  # find start frame, memory offset, detect lr/hr
+            if len(row) < 64:
+                continue
+            if row[58:64].upper() == "FFD8FF":
+                offset = int((row[52:54] + row[50:52]), 16)
+                break
+        LOGGER.debug(f"Siren: cmd_match={cmd_match}, offset={offset}")
+        for ts, row in self.frames:
+            if len(row) < 64:
+                continue
+            cmd = row[32:36]
+            addr = int((row[56:58] + row[54:56] + row[52:54] + row[50:52]), 16) - offset
+            payload = row[58:]
+            if cmd == cmd_match and addr >= 0:
+                self.imagedata.seek(addr)
+                self.imagedata.write(bytes.fromhex(payload))
+        self.write_image()
+
+
+class Lucky7Decode(ImageDecode):  # WIP
+    supported_norad = [44406]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        self.parse_file()
+        num_images = 0
+        for pid in set(self.get_packet_ids()):
+            self.parse_frames(pid)
+            self.image_ext = f"_{num_images}.jpg"
+            self.write_image()
+            num_images += 1
+
+    def get_packet_ids(self):
+        pids = []
+        offset = 49152  # 0xC000
+        for row in self.frames:
+            if len(row) < 70:
+                continue
+            oid = int(row[0:2], 16)
+            obc = int(row[2:6], 16)
+            packets = int(row[10:14], 16)
+            if (oid == 128 or oid == 0) and obc >= offset:
+                pids.append(packets)
+        return pids
+
+    def parse_frames(self, pid):
+        offset = 49152  # 0xC000
+        for row in self.frames:
+            if len(row) < 70:
+                continue
+            oid = int(row[0:2], 16)
+            obc = int(row[2:6], 16)
+            # mcu = int(row[6:10], 16)
+            packets = int(row[10:14], 16)
+            payload = row[14:70]
+            # print(f'ID {oid:4}, OBC {obc:5}, MCU {mcu:5}, packets {packets:5}: {row[0:14]} {payload}')
+            if (oid == 128 or oid == 0) and obc >= offset and packets == pid:
+                self.imagedata.seek((obc - offset) * 28)
+                self.imagedata.write(bytes.fromhex(payload))
+
+
+class SharjahsatDecode(ImageDecode):  # WIP
+    supported_norad = [55104]
+
+    def __init__(self, frame_file, norad_id, image_file):
+        super().__init__(frame_file, norad_id, image_file)
+
+    def main(self):
+        self.parse_file()
+        self.imagedata.seek(0)
+        self.imagedata.truncate()
+        lastframe = 0
+        dsize = 246
+        for row in self.frames:
+            if len(row) < 64:
+                continue
+            if "FFD8FF" in row[52:58]:
+                lastframe = int(row[46:48] + row[44:46], 16)  # it's actually 32bit
+                dsize = int(row[42:44], 16)  # usually 246
+                print(f"dsize {dsize}, lastframe {lastframe}")
+                break
+        for row in self.frames:
+            if len(row) < 64:
+                continue
+            did = bytes.fromhex(row[32:40])
+            dt = row[40:42]
+            dlen = int(row[42:44], 16)
+            addr = int(row[46:48] + row[44:46], 16)  # it's actually 32bit
+            # header = row[0:52]
+            payload = row[52:]
+            # print(f'{call} dt:{dt} dl:{dlen} a:{addr} {header} {payload}')
+            if did == b"ESER" and dt == "41":
+                # if dlen != 246:
+                #     print(f"dsize {dlen}, addr {addr}\t{row}")
+                self.imagedata.seek(dsize * (lastframe - addr))
+                self.imagedata.write(bytes.fromhex(payload))
+        self.write_image()
 
 
 class ExternalDecode(ImageDecode):
@@ -227,4 +351,5 @@ if __name__ == "__main__":
             f"Frame file can be KISS, SatNOGS data export or GetKISS+"
         )
         exit(0)
-    d = ImageDecode(argv[1], int(argv[2]))
+    LOGGER.setLevel(logging.INFO)
+    ImageDecode(argv[1], argv[2])
