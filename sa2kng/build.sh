@@ -24,4 +24,4 @@ ARGS+=" --build-arg CLIENT_BRANCH=${TAG}"
 docker build \
     -t ${REPO_ROOT}/satnogs-client:${TAG} \
     ${ARGS} \
-    .
+    . "$@"

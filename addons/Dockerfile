@@ -131,6 +131,7 @@ COPY udp2ishort.grc .
 RUN grcc udp2ishort.grc -o /target/usr/bin/
 
 COPY scripts/* /target/usr/bin/
+COPY satyaml/* /target/usr/lib/python3/dist-packages/satellites/satyaml/
 COPY --chown=satnogs-client:satnogs-client direwolf.conf /target/etc/
 COPY --chown=satnogs-client:satnogs-client sat.cfg /target/var/lib/satnogs-client/.gr_satellites/sat.cfg
 # Don't rely on repository file permissions, COPY --chmod requires BuildKit
