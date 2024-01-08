@@ -64,7 +64,10 @@ class GrSat(object):
         self.station_id = getenv("SATNOGS_STATION_ID", "0")
         self.tmp = getenv("SATNOGS_APP_PATH", "/tmp/.satnogs")
         self.data = getenv("SATNOGS_OUTPUT_PATH", "/tmp/.satnogs/data")
-        self.zmq_port = getenv("GRSAT_ZMQ_PORT", "5555")
+        try:
+            self.zmq_port = int(getenv("GRSAT_ZMQ_PORT"))
+        except (ValueError, TypeError):
+            self.zmq_port = 0
         self.app = getenv("GRSAT_APP", "gr_satellites")
         self.keep_logs = getenv("GRSAT_KEEPLOGS", "False").lower() in [
             "true",
@@ -113,12 +116,12 @@ class GrSat(object):
             self.timestamp.strftime("%Y-%m-%dT%H:%M:%S"),
             "--kiss_out",
             self.kiss_file,
-            "--zmq_pub",
-            f"tcp://0.0.0.0:{str(self.zmq_port)}",
             "--ignore_unknown_args",
             "--use_agc",
             "--satcfg",
         ]
+        if 0 < self.zmq_port <= 65535:
+            gr_app.extend(["--zmq_pub", f"tcp://0.0.0.0:{str(self.zmq_port)}"])
 
         LOGGER.debug(" ".join(gr_app))
         try:
