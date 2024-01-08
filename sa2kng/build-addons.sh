@@ -11,4 +11,4 @@ ARGS="
 docker build \
     -t ${REPO_ROOT}/satnogs-client:${TAG} \
     ${ARGS} \
-    ../addons
+    ../addons "$@"
