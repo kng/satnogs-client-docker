@@ -39,12 +39,9 @@ def find_decimation(baudrate, min_decimation=4, audio_samp_rate=48e3, multiple=2
 
 
 if __name__ == "__main__":
-    try:
-        baud_rate = int(float(argv[1]))
-    except (ValueError, IndexError):
-        baud_rate = 9600
-    try:
-        script_name = argv[2]
-    except (ValueError, IndexError):
-        script_name = ""
-    print(find_samp_rate(baud_rate, script_name))
+    if len(argv) == 2:
+        print(find_samp_rate(argv[1]))
+    elif len(argv) == 3:
+        print(find_samp_rate(argv[1], argv[2]))
+    else:
+        print(f"Usage: {argv[0]} <baudrate> [script_name]")

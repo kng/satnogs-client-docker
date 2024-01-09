@@ -1,9 +1,13 @@
 #!/bin/bash
 # SATNOGS_POST_OBSERVATION_SCRIPT="satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
 
-grsat.py stop "$@"
+if [[ "${GRSAT_NEW^^}" =~ (TRUE|YES|1) ]]; then
+  grsat.py stop "$@"
+else
+  grsat-wrapper.sh stop "$@"
+fi
 meteor.sh stop "$@"
 iq_dump_rename.sh "$@"
 bandscan.sh start
 direwolf.sh start
-# rotor-park.sh
+rotor-park.sh
