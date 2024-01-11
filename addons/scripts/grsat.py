@@ -79,7 +79,7 @@ class GrSat(object):
         self.log_file = f"{self.tmp}/grsat_{self.obs_id}.log"
         self.pid_file = f"{self.tmp}/grsat_{self.station_id}.pid"
         if self.tle is not None:
-            self.norad = int(self.tle["tle2"].split(" ")[1])
+            self.norad = int(self.tle["tle2"].split()[1])
             self.sat_name = self.tle["tle0"]  # may start with '0 ' or not
         else:
             self.norad = 0
@@ -136,11 +136,11 @@ class GrSat(object):
             LOGGER.warning(f"Unable to launch {self.app}: {e}")
 
     def stop_gr_satellites(self):
-        LOGGER.info("Stopping gr_satellites")
         try:
             with open(self.pid_file, "r") as pf:
                 kill(int(pf.readline()), 15)
             unlink(self.pid_file)
+            LOGGER.info("Stopped gr_satellites")
         except (FileNotFoundError, ProcessLookupError, OSError):
             LOGGER.info("No gr_satellites running")
 
