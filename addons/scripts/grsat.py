@@ -144,17 +144,15 @@ class GrSat(object):
         except (FileNotFoundError, ProcessLookupError, OSError):
             LOGGER.info("No gr_satellites running")
 
-        if path.isfile(self.kiss_file) and path.getsize(self.kiss_file) > 0:
+        if path.isfile(self.kiss_file):
             self.kiss_to_json()
             if HAS_IMAGEDECODE:
                 ImageDecode(
                     self.kiss_file, self.norad, f"{self.data}/data_{str(self.obs_id)}_"
                 )
             # run other scripts here
-            if not self.keep_logs:
+            if not self.keep_logs or path.getsize(self.kiss_file) == 0:
                 unlink(self.kiss_file)
-        elif path.isfile(self.kiss_file):
-            unlink(self.kiss_file)
 
         if path.isfile(self.log_file) and (
             not self.keep_logs or path.getsize(self.log_file) == 0
