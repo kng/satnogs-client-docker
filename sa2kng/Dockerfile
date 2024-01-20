@@ -88,8 +88,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
 # make this depend on builder
-ARG MPLSETUPCFG=/etc/mplsetup.cfg
-COPY --from=builder $MPLSETUPCFG $MPLSETUPCFG
+COPY --from=builder /etc/pip.conf /etc
 
 # Install deb packages from builder
 COPY packages.client /usr/local/src/
