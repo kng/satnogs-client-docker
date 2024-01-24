@@ -125,6 +125,16 @@ RUN cd URESAT-1-decoder/bit-version/linux &&\
     make &&\
     install -m 755 uresat-decoder-linux-x86 /target/usr/bin
 
+# SatDump CLI
+RUN git clone --depth=1 https://github.com/SatDump/SatDump.git
+RUN cd SatDump &&\
+    cmake -B build \
+      -DCMAKE_INSTALL_PREFIX=/target/usr \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_GUI=OFF \
+      -DBUILD_TOOLS=OFF &&\
+    cmake --build build --target install # -- -j$(nproc)
+
 # UDP client for programs that require data on stdin
 COPY udp.conf /target/etc/gnuradio/conf.d/
 COPY udp2ishort.grc .

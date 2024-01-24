@@ -1,6 +1,7 @@
 direwolf
 git
 jq
+libnng1
 netcat-openbsd
 python3-psutil
 soapyremote-server

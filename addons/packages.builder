@@ -8,6 +8,7 @@ git
 gnuradio-dev
 jq
 libglib2.0-dev
+libnng-dev
 libpng-dev
 librtlsdr-dev
 libsndfile-dev
@@ -17,5 +18,6 @@ libtool
 libusb-1.0-0-dev
 ninja-build
 patch
+pkgconf
 psmisc
 swig
