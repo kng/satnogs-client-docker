@@ -12,6 +12,8 @@ RUN apt -y update && \
 # install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local
 
+ARG CMAKE_BUILD_PARALLEL_LEVEL
+
 # install gr-satellites, this is now included in the base image
 #RUN git clone -b maint-3.8 --depth=1 https://github.com/daniestevez/gr-satellites.git
 #RUN cd gr-satellites &&\
@@ -129,11 +131,13 @@ RUN cd URESAT-1-decoder/bit-version/linux &&\
 RUN git clone --depth=1 https://github.com/SatDump/SatDump.git
 RUN cd SatDump &&\
     cmake -B build \
-      -DCMAKE_INSTALL_PREFIX=/target/usr \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_STAGING_PREFIX=/target/usr \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_GUI=OFF \
-      -DBUILD_TOOLS=OFF &&\
-    cmake --build build --target install # -- -j$(nproc)
+      -DPLUGIN_SCRIPTING=ON \
+      -DBUILD_TOOLS=ON &&\
+    cmake --build build --target install
 
 # UDP client for programs that require data on stdin
 COPY udp.conf /target/etc/gnuradio/conf.d/
