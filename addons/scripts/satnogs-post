@@ -6,6 +6,7 @@ if [[ "${GRSAT_NEW^^}" =~ (TRUE|YES|1) ]]; then
 else
   grsat-wrapper.sh stop "$@"
 fi
+satdump.sh stop "$@"
 meteor.sh stop "$@"
 iq_dump_rename.sh "$@"
 bandscan.sh start

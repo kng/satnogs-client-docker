@@ -8,6 +8,7 @@ if [[ "${GRSAT_NEW^^}" =~ (TRUE|YES|1) ]]; then
 else
   grsat-wrapper.sh start "$@"
 fi
+satdump.sh start "$@"
 meteor.sh start "$@"
 if [[ "${GPIO_ENABLE^^}" =~ (TRUE|YES|1) ]]; then
   gpio.py -f "${2}"
