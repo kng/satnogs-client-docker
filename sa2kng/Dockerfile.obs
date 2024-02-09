@@ -1,0 +1,10 @@
+ARG IMAGE_TAG=master
+ARG REPO_ROOT=librespace
+FROM ${REPO_ROOT}/satnogs-client:${IMAGE_TAG}
+
+ARG OBS_REPO=http://download.opensuse.org/repositories/home:/librespace:/satnogs-unstable/Debian_11/
+RUN echo "deb ${OBS_REPO} /" > /etc/apt/sources.list.d/obs_repo.list &&\
+	apt-key adv --fetch-keys "${OBS_REPO}Release.key" &&\
+	apt -y update &&\
+	apt -y upgrade &&\
+	rm -r /var/lib/apt/lists/*
