@@ -7,4 +7,5 @@ RUN echo "deb ${OBS_REPO} /" > /etc/apt/sources.list.d/obs_repo.list &&\
 	apt-key adv --fetch-keys "${OBS_REPO}Release.key" &&\
 	apt -y update &&\
 	apt -y upgrade &&\
+	apt -y autoremove &&\
 	rm -r /var/lib/apt/lists/*

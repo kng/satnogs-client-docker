@@ -1,7 +1,11 @@
 #!/bin/bash
-TAG="obs"
+
+# Base image repo and tag
 REPO_ROOT="knegge"
 IMAGE_TAG="lsf-addons"
+
+# Resulting image tag
+TAG="obs"
 
 ARGS="  --build-arg IMAGE_TAG=${IMAGE_TAG}"
 ARGS+=" --build-arg REPO_ROOT=${REPO_ROOT}"
