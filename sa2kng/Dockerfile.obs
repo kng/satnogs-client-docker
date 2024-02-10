@@ -9,3 +9,4 @@ RUN echo "deb ${OBS_REPO} /" > /etc/apt/sources.list.d/obs_repo.list &&\
 	apt -y upgrade &&\
 	apt -y autoremove &&\
 	rm -r /var/lib/apt/lists/*
+RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
