@@ -22,16 +22,15 @@ ARG GRSOAPY_VER=2.1.3.1-1
 ARG CLIENT_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-client.git
 ARG CLIENT_BRANCH=master
 ARG CLIENT_VER=1.8.1
-ARG RTLSDR_URL
-ARG RTLSDR_BRANCH=master
-ARG RTLSDR_VER=0.6.0-3satnogs1
-ARG UHD_URL
 
 RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
 RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"
 RUN git clone --depth 1 --branch "$GRSOAPY_BRANCH" "$GRSOAPY_URL"
 RUN git clone --depth 1 --branch "$CLIENT_BRANCH" "$CLIENT_URL"
 
+ARG RTLSDR_URL
+ARG RTLSDR_BRANCH=master
+ARG RTLSDR_VER=0.6.0-3satnogs1
 RUN if [ -n "$RTLSDR_URL" ]; then \
         git clone --depth 1 --branch "$RTLSDR_BRANCH" "$RTLSDR_URL" rtl-sdr && \
         cd rtl-sdr && \
@@ -55,6 +54,7 @@ RUN cd satnogs-flowgraphs && \
     DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc && \
     dpkg -i ../satnogs-flowgraphs_*.deb
 
+ARG UHD_URL
 RUN if [ -n "$UHD_URL" ]; then \
       dget -q -u "$UHD_URL" &&\
       cd uhd-* &&\
@@ -90,13 +90,19 @@ ENV TZ=Etc/UTC
 # make this depend on builder
 COPY --from=builder /etc/pip.conf /etc
 
-# Install deb packages from builder
+# Install deb packages from builder and optional repo
+ARG OBS_REPO
 COPY packages.client /usr/local/src/
 RUN --mount=type=cache,id=debs,target=/debs \
+    if [ -n "${OBS_REPO}" ]; then \
+      echo "deb ${OBS_REPO} /" > /etc/apt/sources.list.d/obs_repo.list &&\
+	  apt-key adv --fetch-keys "${OBS_REPO}/Release.key"; \
+    fi &&\
     apt -y update && \
     apt -y upgrade && \
     xargs -a /usr/local/src/packages.client apt install -qy python3-pip && \
     apt install -qy --allow-downgrades /debs/$(dpkg --print-architecture)/*.deb && \
+    apt -y autoremove && \
     rm -rf /var/lib/apt/lists/*
 
 # Install python packages from builder
@@ -117,6 +123,9 @@ RUN groupadd -r -g ${SATNOGS_CLIENT_UID} satnogs-client \
 
 # Create application varstate directory
 RUN install -d -o ${SATNOGS_CLIENT_UID} -g ${SATNOGS_CLIENT_UID} ${SATNOGS_CLIENT_VARSTATEDIR}
+
+# Restore permissions on satyaml dir
+RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 
 ARG UHD_URL
 RUN if [ -n "$UHD_URL" ]; then \
