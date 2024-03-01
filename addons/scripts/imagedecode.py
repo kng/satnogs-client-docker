@@ -134,8 +134,10 @@ class StratosatDecode(ImageDecode):
             if len(row) != 128:
                 continue
             if row[16:22].upper() == "FFD8FF":
-                offset = int((row[12:14] + row[10:12]), 16)
+                offset = int((row[14:16] + row[12:14] + row[10:12]), 16)
                 hr = row[6:10].upper() == "2098"
+                if hr:
+                    offset = 0
                 cmd_match = row[0:4].upper()
                 break
         LOGGER.debug(f"Stratosat: cmd_match={cmd_match}, offset={offset}, hr={hr}")
@@ -143,10 +145,7 @@ class StratosatDecode(ImageDecode):
             if len(row) != 128:
                 continue
             cmd = row[0:4]
-            if hr:
-                addr = int((row[14:16] + row[12:14] + row[10:12]), 16)
-            else:
-                addr = int((row[12:14] + row[10:12]), 16) - offset
+            addr = int((row[14:16] + row[12:14] + row[10:12]), 16) - offset
             dlen = (int(row[4:6], 16) + 2) * 2
             payload = row[16:dlen]
             if cmd == cmd_match and addr >= 0:
