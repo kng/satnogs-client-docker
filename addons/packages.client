@@ -1,7 +1,9 @@
 direwolf
 git
 jq
+libjemalloc2
 libnng1
+libtiff5
 netcat-openbsd
 python3-psutil
 soapyremote-server

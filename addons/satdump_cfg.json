@@ -1,0 +1,7 @@
+{
+  "tle_settings": {
+    "urls_to_fetch": [
+      "https://db.satnogs.org/api/tle/?format=3le"
+    ]
+  }
+}

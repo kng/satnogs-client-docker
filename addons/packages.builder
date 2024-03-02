@@ -8,14 +8,17 @@ git
 gnuradio-dev
 jq
 libglib2.0-dev
+libjemalloc-dev
 libnng-dev
 libpng-dev
 librtlsdr-dev
 libsndfile-dev
 libsoapysdr-dev
 libssl-dev
+libtiff-dev
 libtool
 libusb-1.0-0-dev
+libzstd-dev
 ninja-build
 patch
 pkgconf
