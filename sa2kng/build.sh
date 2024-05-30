@@ -21,6 +21,8 @@ ARGS+=" --build-arg CLIENT_BRANCH=${TAG}"
 #ARGS+=" --build-arg RTLSDR_VER=0.6.0+2+${TAG}"
 #ARGS+=" --build-arg UHD_URL=http://archive.ubuntu.com/ubuntu/pool/universe/u/uhd/uhd_4.1.0.5-3.dsc"
 #ARGS+=" --build-arg OBS_REPO=https://download.opensuse.org/repositories/home:/knegge:/branches:/home:/librespace:/satnogs-unstable/Debian_11/"
+#ARGS+=" --build-arg REPO_ROOT=${REPO_ROOT}"
+#ARGS+=" --build-arg CMAKE_BUILD_PARALLEL_LEVEL=8"
 
 docker build \
     -t ${REPO_ROOT}/satnogs-client:${TAG} \

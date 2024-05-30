@@ -1,5 +1,6 @@
 ARG GNURADIO_IMAGE_TAG=satnogs
-FROM librespace/gnuradio:${GNURADIO_IMAGE_TAG} as builder
+ARG REPO_ROOT=librespace
+FROM ${REPO_ROOT}/gnuradio:${GNURADIO_IMAGE_TAG} as builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -27,6 +28,8 @@ RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
 RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"
 RUN git clone --depth 1 --branch "$GRSOAPY_BRANCH" "$GRSOAPY_URL"
 RUN git clone --depth 1 --branch "$CLIENT_BRANCH" "$CLIENT_URL"
+
+ARG CMAKE_BUILD_PARALLEL_LEVEL
 
 ARG RTLSDR_URL
 ARG RTLSDR_BRANCH=master
@@ -81,7 +84,8 @@ RUN --mount=type=cache,id=wheels,target=/wheels \
 
 
 ARG GNURADIO_IMAGE_TAG=satnogs
-FROM librespace/gnuradio:${GNURADIO_IMAGE_TAG} as runner
+ARG REPO_ROOT=librespace
+FROM ${REPO_ROOT}/gnuradio:${GNURADIO_IMAGE_TAG} as runner
 MAINTAINER sa2kng <knegge@gmail.com>
 
 ARG DEBIAN_FRONTEND=noninteractive
