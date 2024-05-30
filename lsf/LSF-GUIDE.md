@@ -25,24 +25,23 @@ By default, it creates a stack that is named after the directory the compose fil
 
 # Getting satnogs-client up and running
 ## Host system
-You will need to install the libraries and supporting sw/fw for your sdr device, including udev rules and blacklists.<br>
-Additional software such as soapysdr is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
+You will need to install the udev rules and blacklists on the host to make sure the devices get the proper permissions.<br>
+Additional software such as SoapySDR is not needed on the host, but can certainly be installed or if you already have a working ansible install etc.<br>
 Make sure to keep the host clock synchronized, this is absolutely essential and easily solved with ntp.
 ```shell
-sudo apt install rtl-sdr ntp
-echo "blacklist dvb_usb_rtl28xxu" | sudo tee /etc/modprobe.d/blacklist-rtlsdr.conf
-sudo modprobe -r dvb_usb_rtl28xxu
+sudo apt install ntp
 ```
 
-### udev rules and module blacklist
-An alternative to installing supporting driver on the host, there is two files that can be installed on the host instead.
-The two main concepts of sdr driver packages are the udev rules and module blacklist, here we have compiled these to suit our needs.
-Basically just copy the [10-satnogs.rules](10-satnogs.rules) to `/etc/udev/rules.d/` and [satnogs-blacklist.conf](satnogs-blacklist.conf) to `/etc/modprobe.d/`
-```
+The individual sdr packages comes with udev rules and blacklists, but to simplify this and make the permissions the coherent we have compiled a custom list to accomplish this.
+It uses the `plugdev` group and mode `0660` on all the devices.
+Do note that any installed packages on the host, like rtl-sdr will possibly conflict with these, ymmv.<br>
+Basically just copy the [10-satnogs.rules](10-satnogs.rules) to `/etc/udev/rules.d/` and [satnogs-blacklist.conf](satnogs-blacklist.conf) to `/etc/modprobe.d/`<br>
+(these are located in the `lsf` directory under this repo)
+```shell
 sudo cp 10-satnogs.rules /etc/udev/rules.d/
-sudo cp atnogs-blacklist.conf /etc/modprobe.d/
+sudo cp satnogs-blacklist.conf /etc/modprobe.d/
 ```
-Reboot is the simplest way to apply these, manually doing `rmmod` and `udevadm control --reload-rules && udevadm trigger` also possible.
+Reboot is the simplest way to apply these, manually doing `rmmod` and `sudo udevadm control --reload-rules && sudo udevadm trigger` also possible.
 
 ### Docker install
 See the [docker installation](#install-dockerio) at the bottom of this page.
