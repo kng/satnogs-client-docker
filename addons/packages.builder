@@ -7,6 +7,7 @@ feh
 git
 gnuradio-dev
 jq
+libcurl4-openssl-dev
 libglib2.0-dev
 libjemalloc-dev
 libnng-dev
