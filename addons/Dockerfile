@@ -1,5 +1,7 @@
 ARG SATNOGS_IMAGE_TAG=master
 ARG REPO_ROOT=librespace
+ARG RUST_IMAGE_TAG=bullseye
+
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} AS builder
 WORKDIR /usr/src
 USER root
@@ -110,17 +112,6 @@ RUN cd libgpredict &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
-# rust build
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustinstall.sh
-RUN sh ./rustinstall.sh -y --default-toolchain nightly
-
-# satnogs-monitor
-RUN git clone --depth=1 https://github.com/wose/satnogs-monitor.git
-RUN cd satnogs-monitor/monitor &&\
-    . "$HOME/.cargo/env" &&\
-    cargo update &&\
-    cargo build --release --out-dir /target/usr/bin -Z unstable-options
-
 # URESAT-1 decoder
 RUN git clone --depth=1 https://github.com/AMSAT-EA/URESAT-1-decoder.git
 RUN cd URESAT-1-decoder/bit-version/linux &&\
@@ -156,8 +147,39 @@ RUN chmod 0755 /target/usr/bin/*
 ENTRYPOINT []
 CMD ["bash"]
 
+
+FROM rust:${RUST_IMAGE_TAG} AS rust
+WORKDIR /usr/src
+USER root
+
+ARG DEBIAN_FRONTEND=noninteractive
+# install build env and required libs etc
+COPY packages.rust .
+RUN apt -y update && \
+    xargs -a packages.rust apt install -qy
+
+# install everything in /target and it will go in to / on destination image
+RUN mkdir -p /target/usr/bin
+
+ARG CMAKE_BUILD_PARALLEL_LEVEL
+
+# libgpredict
+RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
+RUN cd libgpredict &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# satnogs-monitor
+RUN git clone --depth=1 https://github.com/wose/satnogs-monitor.git
+RUN cd satnogs-monitor/monitor &&\
+    cargo update &&\
+    cargo build --release &&\
+    cp ../target/release/satnogs-monitor /target/usr/bin/
+
+
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
 COPY --from=builder /target /
+COPY --from=rust /target /
 
 WORKDIR /usr/src
 COPY packages.client .
