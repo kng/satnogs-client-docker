@@ -145,6 +145,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3000", MODE:="066
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3010", MODE:="0660", GROUP="plugdev"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3020", MODE:="0660", GROUP="plugdev"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3030", MODE:="0660", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1df7", ATTRS{idProduct}=="3050", MODE:="0660", GROUP="plugdev"
 
 # USRP1, B100 and B200
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="fffe", ATTRS{idProduct}=="0002", MODE:="0660", GROUP="plugdev"

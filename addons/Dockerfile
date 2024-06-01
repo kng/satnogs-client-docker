@@ -50,6 +50,30 @@ RUN cd SoapyMiri &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+# SDRplay services install
+RUN ARCH=$(uname -m) &&\
+    MAJVERS=3 &&\
+    case $ARCH in\
+      x86_64|aarch64) BINARY=SDRplay_RSP_API-Linux-3.14.0.run VERS=3.14 ;;\
+      armv*) BINARY=SDRplay_RSP_API-ARM32-3.07.2.run VERS=3.07 ;;\
+    esac &&\
+    curl --no-keepalive -o sdrplay_api https://www.sdrplay.com/software/$BINARY &&\
+    sh ./sdrplay_api --noexec --target sdrplay &&\
+    mkdir -p /target/etc/services.d/sdrplay/ &&\
+    printf "#!/command/execlineb -P\n/usr/bin/sdrplay_apiService" > /target/etc/services.d/sdrplay/run &&\
+    install -m 755 sdrplay/$ARCH/sdrplay_apiService /target/usr/bin/ &&\
+    install -m 644 sdrplay/inc/sdrplay_api*.h /target/usr/include/ &&\
+    install -m 644 sdrplay/$ARCH/libsdrplay_api.so.${VERS} /target/usr/lib/ &&\
+    ln -s /target/usr/lib/libsdrplay_api.so.${VERS} /target/usr/lib/libsdrplay_api.so.${MAJVERS} &&\
+    ln -s /target/usr/lib/libsdrplay_api.so.${MAJVERS} /target/usr/lib/libsdrplay_api.so &&\
+    ldconfig
+
+# SoapySDRPlay3 from pothosware
+RUN git clone --depth=1 -b soapy-sdrplay3-0.5.1 https://github.com/pothosware/SoapySDRPlay3.git
+RUN cd SoapySDRPlay3 &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
 # install aptdec
 RUN git clone --recursive https://github.com/Xerbo/aptdec.git
 RUN cd aptdec &&\
@@ -178,8 +202,6 @@ RUN cd satnogs-monitor/monitor &&\
 
 
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
-COPY --from=builder /target /
-COPY --from=rust /target /
 
 WORKDIR /usr/src
 COPY packages.client .
@@ -187,8 +209,13 @@ RUN apt -y update && \
     xargs -a packages.client apt install -qy && \
     rm -rf /var/lib/apt/lists/*
 
+# install python packages
 COPY packages.pip .
 RUN xargs -a packages.pip pip install
+
+# copy the files built
+COPY --from=builder /target /
+COPY --from=rust /target /
 
 RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
