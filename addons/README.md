@@ -87,7 +87,27 @@ METEOR_NORAD=57166 # optional, space separated list of ID's to activate demodula
 ```
 
 ## [uhd_images_downloader](uhd_images_downloader.py)
-Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)
+Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)<br>
+Some USB devices will reconnect when the firmware is loaded on the first start, simply restart the container/stack to gain access to the device again.<br>
+If you want to trigger this loading immediately, up the stack and run this:<br>
+`docker compose exec satnogs_client uhd_usrp_probe`<br>
+And then restart the stack/container.
+
+## Miri SDR
+[libmirisdr-5](https://github.com/ericek111/libmirisdr-5) and [SoapyMiri](https://github.com/ericek111/SoapyMiri)
+
+## SDRplay
+The [api](https://www.sdrplay.com/api/) is installed and [SoapySDRPlay3](https://github.com/pothosware/SoapySDRPlay3).<br>
+To run it you need to change the [docker-compose.yml](../lsf/docker-compose.yml) command in the client to `command: 'sdrplay.sh satnogs-client'`<br>
+If the api is run for the first time, the USB device will reconnect and that makes the container loose access to it.<br>
+It looks like this in dmesg:
+```
+usb 2-14: USB disconnect, device number 16
+usb 2-14: new high-speed USB device number 18 using xhci_hcd
+```
+Then simply restart the container/stack and it will be able to access the device.<br>
+To see if it is working, launch a shell inside the client container `docker compose exec satnogs_client bash` and run:
+`SoapySDRUtil --probe="driver=sdrplay"`
 
 ## [wf2png](scripts/wf2png.py)
 This converts a waterfall .dat file to .png
