@@ -117,7 +117,6 @@ class GrSat(object):
             "--kiss_out",
             self.kiss_file,
             "--ignore_unknown_args",
-            "--use_agc",
             "--satcfg",
         ]
         if 0 < self.zmq_port <= 65535:
