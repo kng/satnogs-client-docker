@@ -105,7 +105,11 @@ It looks like this in dmesg:
 usb 2-14: USB disconnect, device number 16
 usb 2-14: new high-speed USB device number 18 using xhci_hcd
 ```
-Then simply restart the container/stack and it will be able to access the device.<br>
+
+To deal with this automatically, use the `check-sdr.sh` script that probes for the SDR and restarts if needed.
+Change the command to `command: 'sdrplay.sh check-sdr.sh satnogs-client' to use this functionality.
+
+To deal with it manually, simply probe first, then restart the container/stack, and it will be able to access the device.<br>
 To see if it is working, launch a shell inside the client container `docker compose exec satnogs_client bash` and run:
 `SoapySDRUtil --probe="driver=sdrplay"`
 
