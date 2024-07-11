@@ -156,9 +156,9 @@ RUN cd SatDump &&\
 
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
 # UDP client for programs that require data on stdin
-COPY udp.conf /target/etc/gnuradio/conf.d/
-COPY udp2ishort.grc .
-RUN grcc udp2ishort.grc -o /target/usr/bin/
+COPY gnuradio/*.conf /target/etc/gnuradio/conf.d/
+COPY grc/*.grc .
+RUN grcc -o /target/usr/bin/ *.grc
 
 COPY scripts/* /target/usr/bin/
 COPY satyaml/* /target/usr/lib/python3/dist-packages/satellites/satyaml/
