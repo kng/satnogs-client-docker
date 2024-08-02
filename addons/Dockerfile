@@ -201,7 +201,7 @@ RUN cd satnogs-monitor/monitor &&\
     cp ../target/release/satnogs-monitor /target/usr/bin/
 
 
-FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} as runner
+FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} AS runner
 
 WORKDIR /usr/src
 COPY packages.client .
