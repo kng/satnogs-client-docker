@@ -51,22 +51,22 @@ RUN cd SoapyMiri &&\
     cmake --build build --target install
 
 # SDRplay services install
-RUN ARCH=$(uname -m) &&\
-    MAJVERS=3 &&\
+RUN MAJVERS=3 &&\
     VERS=3.15 &&\
-    BINARY=SDRplay_RSP_API-Linux-3.15.2.run &&\
-    case $ARCH in\
-      x86_64) DIR=amd64 ;;\
+    MINVERS=2 &&\
+    BINARY=SDRplay_RSP_API-Linux-${VERS}.${MINVERS}.run &&\
+    case $(uname -m) in\
       aarch64) DIR=arm64 ;;\
       armv*) DIR=armhf ;;\
+      *) DIR=amd64 ;;\
     esac &&\
-    curl --no-keepalive -o sdrplay_api https://www.sdrplay.com/software/$BINARY &&\
+    curl --no-keepalive -o sdrplay_api https://www.sdrplay.com/software/${BINARY} &&\
     sh ./sdrplay_api --noexec --target sdrplay &&\
-    install -m 755 sdrplay/$DIR/sdrplay_apiService /target/usr/bin/ &&\
+    install -m 755 sdrplay/${DIR}/sdrplay_apiService /target/usr/bin/ &&\
     install -m 644 sdrplay/inc/sdrplay_api*.h /target/usr/include/ &&\
-    install -m 644 sdrplay/$DIR/libsdrplay_api.so.${VERS} /target/usr/lib/ &&\
-    ln -s /target/usr/lib/libsdrplay_api.so.${VERS} /target/usr/lib/libsdrplay_api.so.${MAJVERS} &&\
-    ln -s /target/usr/lib/libsdrplay_api.so.${MAJVERS} /target/usr/lib/libsdrplay_api.so &&\
+    install -m 644 sdrplay/${DIR}/libsdrplay_api.so.${VERS} /target/usr/lib/ &&\
+    ln -sf libsdrplay_api.so.${VERS} /target/usr/lib/libsdrplay_api.so.${MAJVERS} &&\
+    ln -sf libsdrplay_api.so.${MAJVERS} /target/usr/lib/libsdrplay_api.so &&\
     ldconfig
 
 # SoapySDRPlay3 from pothosware

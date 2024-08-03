@@ -16,4 +16,4 @@ ARGS="  --build-arg SATNOGS_IMAGE_TAG=${SATNOGS_IMAGE_TAG}"
 docker build \
     -t ${REPO_ROOT}/satnogs-client:${TAG} \
     ${ARGS} \
-    . "$@"
+    .
