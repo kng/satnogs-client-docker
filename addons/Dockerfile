@@ -203,6 +203,7 @@ RUN cd satnogs-monitor/monitor &&\
 
 
 FROM ${REPO_ROOT}/satnogs-client:${SATNOGS_IMAGE_TAG} AS runner
+LABEL org.opencontainers.image.authors="Daniel Ekman <knegge@gmail.com>"
 
 WORKDIR /usr/src
 COPY packages.client .

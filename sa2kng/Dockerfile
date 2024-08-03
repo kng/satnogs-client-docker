@@ -86,7 +86,7 @@ RUN --mount=type=cache,id=wheels,target=/wheels \
 ARG GNURADIO_IMAGE_TAG=satnogs
 ARG REPO_ROOT=librespace
 FROM ${REPO_ROOT}/gnuradio:${GNURADIO_IMAGE_TAG} AS runner
-MAINTAINER sa2kng <knegge@gmail.com>
+LABEL org.opencontainers.image.authors="Daniel Ekman <knegge@gmail.com>"
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
