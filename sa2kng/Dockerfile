@@ -1,4 +1,4 @@
-ARG GNURADIO_IMAGE_TAG=satnogs
+ARG GNURADIO_IMAGE_TAG=3.8.2.0-satnogs
 ARG REPO_ROOT=librespace
 FROM ${REPO_ROOT}/gnuradio:${GNURADIO_IMAGE_TAG} AS builder
 
@@ -12,17 +12,17 @@ RUN apt -y update && \
     xargs -a packages.builder apt install --no-install-recommends -qy
 
 ARG GRSATNOGS_URL=https://gitlab.com/librespacefoundation/satnogs/gr-satnogs.git
-ARG GRSATNOGS_BRANCH=master
-ARG GRSATNOGS_VER=2.3.4.0-1
+ARG GRSATNOGS_BRANCH=v2.3.5.0
+ARG GRSATNOGS_VER=2.3.5.0-1
 ARG FLOWGRAPHS_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-flowgraphs.git
-ARG FLOWGRAPHS_BRANCH=master
+ARG FLOWGRAPHS_BRANCH=1.5
 ARG FLOWGRAPHS_VER=1.5-1
 ARG GRSOAPY_URL=https://gitlab.com/librespacefoundation/gr-soapy.git
-ARG GRSOAPY_BRANCH=master
+ARG GRSOAPY_BRANCH=v2.1.3.1
 ARG GRSOAPY_VER=2.1.3.1-1
 ARG CLIENT_URL=https://gitlab.com/librespacefoundation/satnogs/satnogs-client.git
-ARG CLIENT_BRANCH=master
-ARG CLIENT_VER=1.8.1
+ARG CLIENT_BRANCH=1.9.2
+ARG CLIENT_VER=1.9.2
 
 RUN git clone --depth 1 --branch "$GRSATNOGS_BRANCH" "$GRSATNOGS_URL"
 RUN git clone --depth 1 --branch "$FLOWGRAPHS_BRANCH" "$FLOWGRAPHS_URL"

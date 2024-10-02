@@ -2,12 +2,12 @@
 export DOCKER_BUILDKIT=1
 TAG="sa2kng"
 REPO_ROOT="knegge"
-GNURADIO_IMAGE_TAG="satnogs-unstable"
+GNURADIO_IMAGE_TAG="3.8.2.0-satnogs"
 
 ARGS="  --build-arg GNURADIO_IMAGE_TAG=${GNURADIO_IMAGE_TAG}"
 ARGS+=" --build-arg GRSATNOGS_URL=https://gitlab.com/knegge/gr-satnogs.git"
 ARGS+=" --build-arg GRSATNOGS_BRANCH=${TAG}"
-ARGS+=" --build-arg GRSATNOGS_VER=2.3.4.0+2+${TAG}"
+ARGS+=" --build-arg GRSATNOGS_VER=2.3.5.0+2+${TAG}"
 ARGS+=" --build-arg GRSOAPY_URL=https://gitlab.com/knegge/gr-soapy.git"
 ARGS+=" --build-arg GRSOAPY_BRANCH=${TAG}"
 ARGS+=" --build-arg GRSOAPY_VER=2.1.3.1+2+${TAG}"
