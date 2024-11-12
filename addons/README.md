@@ -4,18 +4,42 @@
 
 This is a collection of scripts and software builds that can be added to the official docker images.
 
-There is the [legacy version](Dockerfile) that extends my initial images, and there's the [LSF version](Dockerfile.lsf).<br>
 These build a bunch of additional software on top of the image, as well as include some useful scripts.
 
 ## [satnogs-pre](scripts/satnogs-pre) and [satnogs-post](scripts/satnogs-post)
-This is the glue for everything regarding the observations, they are executed before and after the actual observation. In these you can launch things that can help with automated processing, demodulators and more.
+This is the glue for everything regarding the observations, they are executed before and after the actual observation. In these you can launch things that can help with automated processing, demodulators and more.<br>
+By default, I recommend these two as they have been used for a long time and many other stations use them:
+```
+SATNOGS_PRE_OBSERVATION_SCRIPT=satnogs-pre {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
+SATNOGS_POST_OBSERVATION_SCRIPT=satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}
+```
+
+## [grsat.py](scripts/grsat.py)
+This is the [gr-satellites](https://github.com/daniestevez/gr-satellites) integration into the client.<br>
+It needs the UDP output to be enabled in the flowgraphs and the above pre-/post- scripts.
+```
+UDP_DUMP_HOST=0.0.0.0
+```
+
+The main idea is to get the doppler corrected IQ stream from the flowgraph into a running gr_satellites in UDP raw mode.<br>
+Pre-obs script launches gr-satellites in the background and it’s output is directed to a log file and a KISS file.<br>
+Post-obs stops the gr_satellites and looks for any KISS data, parses and creates the necessary files for upload via the satnogs-client.
+
+## [imagedecode.py](scripts/imagedecode.py)
+TODO: document the image decoder
+
+## [gpio.py](scripts/gpio.py)
+TODO: document IO control
+
+## [SatDump](scripts/satdump.sh)
+TODO: finish the implementation and document
 
 ## [iq_dump_rename](scripts/iq_dump_rename.sh)
 This script helps rename the IQ_DUMP files between the observations, else they're overwritten by the next obs.
 Required settings in `station.env` is:
 ```
-ENABLE_IQ_DUMP=Yes
-IQ_DUMP_RENAME=Yes
+ENABLE_IQ_DUMP=true
+IQ_DUMP_RENAME=true
 IQ_DUMP_FILENAME=/srv/iq
 ```
 To make use of it you should bind-mount a directory, so it is stored on the host instead of in the image or volume.
@@ -44,7 +68,7 @@ A bandscan script that can run in between observations to monitor a frequency an
 The `rx_sdr` will use the device, antenna, gain etc from the satnogs settings.<br>
 Configuration in `station.env`, the only required is enable, all the others have defaults:
 ```shell
-BANDSCAN_ENABLE=yes
+BANDSCAN_ENABLE=true
 BANDSCAN_FREQ=435000000 # default 401M
 BANDSCAN_SAMPLERATE=2e6 # override the default from SATNOGS_RX_SAMP_RATE
 BANDSCAN_DIR=/srv/bandscan # make sure to bind-mount a path from the host
@@ -55,7 +79,7 @@ Run [direwolf](https://github.com/wb2osz/direwolf) and demodulate APRS in betwee
 The `rx_sdr` will use the device, antenna, gain etc from the satnogs settings.<br>
 Configuration in `station.env`, the only required is  enable, all the others have defaults:
 ```
-DIREWOLF_ENABLE=yes
+DIREWOLF_ENABLE=true
 DIREWOLF_FREQ=144800000 # EU 144.8M, modify for NA 144.39M
 DIREWOLF_CONF=/etc/direwolf.conf # change to /var/lib/satnogs-client/direwolf.conf for custom config
 ```
@@ -85,13 +109,6 @@ Configuration in `station.env`:
 UDP_DUMP_HOST=0.0.0.0 # required, enable UDP output from flowgraphs
 METEOR_NORAD=57166 # optional, space separated list of ID's to activate demodulation
 ```
-
-## [uhd_images_downloader](uhd_images_downloader.py)
-Downloads USRP images from Ettus Research, this is now included in the base image of [docker-gnuradio](https://gitlab.com/librespacefoundation/docker-gnuradio)<br>
-Some USB devices will reconnect when the firmware is loaded on the first start, simply restart the container/stack to gain access to the device again.<br>
-If you want to trigger this loading immediately, up the stack and run this:<br>
-`docker compose exec satnogs_client uhd_usrp_probe`<br>
-And then restart the stack/container.
 
 ## Miri SDR
 [libmirisdr-5](https://github.com/ericek111/libmirisdr-5) and [SoapyMiri](https://github.com/ericek111/SoapyMiri)
@@ -146,4 +163,3 @@ Meteor-M2 series demodulator from https://github.com/dbdexter-dev/meteor_demod <
 Meteor-M series LRPT decoder https://github.com/dbdexter-dev/meteor_decode <br>
 SatNOGS Monitor https://github.com/wose/satnogs-monitor <br>
 URESAT-1 decoder https://github.com/AMSAT-EA/URESAT-1-decoder <br>
-

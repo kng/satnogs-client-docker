@@ -34,9 +34,9 @@ RUN cd ssdv &&\
     make DESTDIR=/target install
 
 # install satnogs_gr-satellites, also implemented in grsat.py
-RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
-RUN cd satnogs_gr-satellites &&\
-    make DESTDIR=/target PREFIX=/usr install
+#RUN git clone --depth=1 https://github.com/kng/satnogs_gr-satellites.git
+#RUN cd satnogs_gr-satellites &&\
+#    make DESTDIR=/target PREFIX=/usr install
 
 # install mirisdr
 RUN git clone https://github.com/ericek111/libmirisdr-5.git
@@ -143,17 +143,20 @@ RUN cd URESAT-1-decoder/bit-version/linux &&\
     make &&\
     install -m 755 uresat-decoder-linux-x86 /target/usr/bin
 
-# SatDump CLI
-RUN git clone --depth=1 https://github.com/SatDump/SatDump.git
-RUN cd SatDump &&\
-    cmake -B build \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_STAGING_PREFIX=/target/usr \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_GUI=OFF \
-      -DPLUGIN_SCRIPTING=ON \
-      -DBUILD_TOOLS=ON &&\
-    cmake --build build --target install
+# SatDump CLI, disabled by default as it is a lengthy build
+ARG BUILD_SATDUMP
+RUN if [ -n "$BUILD_SATDUMP" ]; then \
+        git clone --depth=1 https://github.com/SatDump/SatDump.git &&\
+        cd SatDump &&\
+        cmake -B build \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DCMAKE_STAGING_PREFIX=/target/usr \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_GUI=OFF \
+            -DPLUGIN_SCRIPTING=ON \
+            -DBUILD_TOOLS=ON &&\
+        cmake --build build --target install ;\
+    fi
 
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
 # UDP client for programs that require data on stdin

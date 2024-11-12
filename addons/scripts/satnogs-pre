@@ -3,11 +3,7 @@
 
 bandscan.sh stop
 direwolf.sh stop
-if [[ "${GRSAT_NEW^^}" =~ (TRUE|YES|1) ]]; then
-  grsat.py start "$@"
-else
-  grsat-wrapper.sh start "$@"
-fi
+grsat.py start "$@"
 satdump.sh start "$@"
 meteor.sh start "$@"
 if [[ "${GPIO_ENABLE^^}" =~ (TRUE|YES|1) ]]; then

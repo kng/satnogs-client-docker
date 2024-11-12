@@ -1,11 +1,7 @@
 #!/bin/bash
 # SATNOGS_POST_OBSERVATION_SCRIPT="satnogs-post {{ID}} {{FREQ}} {{TLE}} {{TIMESTAMP}} {{BAUD}} {{SCRIPT_NAME}}"
 
-if [[ "${GRSAT_NEW^^}" =~ (TRUE|YES|1) ]]; then
-  grsat.py stop "$@"
-else
-  grsat-wrapper.sh stop "$@"
-fi
+grsat.py stop "$@"
 satdump.sh stop "$@"
 meteor.sh stop "$@"
 iq_dump_rename.sh "$@"
