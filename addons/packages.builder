@@ -15,6 +15,7 @@ libpng-dev
 librtlsdr-dev
 libsndfile-dev
 libsoapysdr-dev
+libsox-dev
 libssl-dev
 libtiff-dev
 libtool
