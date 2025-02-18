@@ -75,6 +75,12 @@ RUN cd SoapySDRPlay3 &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+# SoapyRTLTCP from pothosware
+RUN git clone --depth=1 https://github.com/pothosware/SoapyRTLTCP.git
+RUN cd SoapyRTLTCP &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
 # install aptdec
 RUN git clone --recursive https://github.com/Xerbo/aptdec.git
 RUN cd aptdec &&\
