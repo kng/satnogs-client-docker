@@ -55,11 +55,7 @@ RUN MAJVERS=3 &&\
     VERS=3.15 &&\
     MINVERS=2 &&\
     BINARY=SDRplay_RSP_API-Linux-${VERS}.${MINVERS}.run &&\
-    case $(uname -m) in\
-      aarch64) DIR=arm64 ;;\
-      armv*) DIR=armhf ;;\
-      *) DIR=amd64 ;;\
-    esac &&\
+    DIR=$(dpkg --print-architecture) &&\
     curl --no-keepalive -o sdrplay_api https://www.sdrplay.com/software/${BINARY} &&\
     sh ./sdrplay_api --noexec --target sdrplay &&\
     install -m 755 sdrplay/${DIR}/sdrplay_apiService /target/usr/bin/ &&\
