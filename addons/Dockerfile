@@ -77,6 +77,18 @@ RUN cd SoapyRTLTCP &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+# HydraSDR RFOne
+RUN git clone --depth=1 https://github.com/hydrasdr/rfone_host.git
+RUN cd rfone_host &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# Soapy SDR plugin for HydraSDR
+RUN git clone --depth=1 https://github.com/hydrasdr/SoapyHydraSDR.git
+RUN cd SoapyHydraSDR &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr/local -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
 # install aptdec
 RUN git clone --recursive https://github.com/Xerbo/aptdec.git
 RUN cd aptdec &&\
@@ -133,11 +145,11 @@ RUN cd meteor_decode &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
-# libgpredict
-RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
-RUN cd libgpredict &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
-    cmake --build build --target install
+# libgpredict, not needed since it was changed to statically linked in satnogs-monitor
+#RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
+#RUN cd libgpredict &&\
+#    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+#    cmake --build build --target install
 
 # URESAT-1 decoder
 RUN git clone --depth=1 https://github.com/AMSAT-EA/URESAT-1-decoder.git
@@ -193,11 +205,11 @@ RUN mkdir -p /target/usr/bin
 
 ARG CMAKE_BUILD_PARALLEL_LEVEL
 
-# libgpredict
-RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
-RUN cd libgpredict &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release &&\
-    cmake --build build --target install
+# libgpredict, not needed since it was changed to statically linked in satnogs-monitor
+#RUN git clone --depth=1 https://github.com/cubehub/libgpredict.git
+#RUN cd libgpredict &&\
+#    cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release &&\
+#    cmake --build build --target install
 
 # satnogs-monitor
 RUN git clone --depth=1 https://github.com/wose/satnogs-monitor.git
@@ -224,7 +236,8 @@ RUN xargs -a packages.pip pip install
 COPY --from=builder /target /
 COPY --from=rust /target /
 
-RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml
+RUN chown -R satnogs-client:satnogs-client /usr/lib/python3/dist-packages/satellites/satyaml &&\
+    ldconfig
 ARG SATNOGS_CLIENT_VARSTATEDIR=/var/lib/satnogs-client
 WORKDIR $SATNOGS_CLIENT_VARSTATEDIR
 

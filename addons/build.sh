@@ -2,10 +2,10 @@
 export DOCKER_BUILDKIT=1
 if [ "${1^^}" == "DEV" ]; then
     TAG="lsf-dev-addons"
-    SATNOGS_IMAGE_TAG="master-unstable"
+    SATNOGS_IMAGE_TAG="1.9.3-unstable"
 else
     TAG="lsf-addons"
-    SATNOGS_IMAGE_TAG="master"
+    SATNOGS_IMAGE_TAG="1.9.3"
 fi
 REPO_ROOT="knegge"
 
