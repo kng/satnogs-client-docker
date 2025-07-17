@@ -212,9 +212,9 @@ ARG CMAKE_BUILD_PARALLEL_LEVEL
 #    cmake --build build --target install
 
 # satnogs-monitor
-RUN git clone --depth=1 https://github.com/wose/satnogs-monitor.git
+RUN git clone --recursive --depth=1 https://github.com/wose/satnogs-monitor.git
 RUN cd satnogs-monitor/monitor &&\
-    cargo update &&\
+#    cargo update &&\
     cargo build --release &&\
     cp ../target/release/satnogs-monitor /target/usr/bin/
 
