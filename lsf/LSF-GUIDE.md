@@ -116,10 +116,12 @@ This is no longer the case, as these are separated in images and they can easily
 
 Editing the [docker-compose.yml](docker-compose.yml) and going down to the satnogs_client service, the `image:` key specifies the image used.
 In this case simply comment out the stable image and uncomment the unstable, or change to any other tag that might be available in the future.
+Do note that this might break due to fundamental changes, like the recent switch to uid `500` instead of `999`.
+You also need to match the hamlib versions, `4.0` for client version `1.x` and hamlib `4.5.4` for client version `2.x`.
 ````yaml
   satnogs_client:
-    #image: registry.gitlab.com/librespacefoundation/satnogs/satnogs-client/satnogs-client:master  # LSF stable docker image
-    image: registry.gitlab.com/librespacefoundation/satnogs/satnogs-client/satnogs-client:master-unstable  # LSF experimental docker image
+    image: docker pull librespace/satnogs-client:master
+    user: '500'
 ````
 The available tags you can use is listed on [gitlab registry](https://gitlab.com/librespacefoundation/satnogs/satnogs-client/container_registry/3553292) and on [dockerhub](https://hub.docker.com/r/librespace/satnogs-client/tags), two tags are available today: master and master-unstable.
 <br>Recreate the container with the usual `docker-compose up -d` 
